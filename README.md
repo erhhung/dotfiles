@@ -93,16 +93,16 @@ If on the `main` branch, see "[`files.txt`](./files.txt)" for examples of invent
 
 ### Example
 
-<div align="center">
+<div style="display: block; text-align: center;">
   <div style="display: inline-block; text-align: left;">
     <img src="./images/copy-dryrun1.png" alt="dryrun1" width="394"/>
-    <div style="line-height: 4px; font-size: 14px; position: relative; top: -7px; left: 6px;">···</div>
+    <div style="line-height: 4px; font-size: 14px; position: relative; top: -7px; left: 6px;">&nbsp;···</div>
     <img src="./images/copy-dryrun2.png" alt="dryrun2" width="454"/>
-    <div style="line-height: 8px; font-size: 14px; position: relative; top: -5px; left: 6px;">···</div>
+    <div style="line-height: 8px; font-size: 14px; position: relative; top: -5px; left: 6px;">&nbsp;···</div>
     <img src="./images/copy-dryrun3.png" alt="dryrun3" width="446"/>
-    <div style="line-height: 22px; font-size: 14px; position: relative; top: -5px; left: 6px;">···</div>
+    <div style="line-height: 22px; font-size: 14px; position: relative; top: -5px; left: 6px;">&nbsp;···</div>
     <img src="./images/copy-dryrun4.png" alt="dryrun4" width="508"/>
-    <div style="line-height: 22px; font-size: 14px; position: relative; top: -5px; left: 6px;">···</div>
+    <div style="line-height: 22px; font-size: 14px; position: relative; top: -5px; left: 6px;">&nbsp;···</div>
     <img src="./images/copy-dryrun5.png" alt="dryrun5" width="638"/>
   </div>
 </div>
