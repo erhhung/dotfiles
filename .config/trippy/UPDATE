@@ -1,0 +1,4 @@
+# Run "geoipupdate" command (https://github.com/maxmind/geoipupdate)
+# to update "/home/linuxbrew/.linuxbrew/var/GeoIP/GeoLite2-City.mmdb"
+
+# command rsync -t pfsense:/usr/local/share/GeoIP/GeoLite2-Country.mmdb .

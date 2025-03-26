@@ -1,0 +1,4 @@
+/Users/erhhung/dev/open-source/text-generation-webui/installer_files/conda
+/Users/erhhung/dev/open-source/text-generation-webui/installer_files/env
+/Users/erhhung/dev/open-source/lollms-webui/scripts/macos/installer_files/miniconda3
+/Users/erhhung/dev/open-source/lollms-webui/scripts/macos/installer_files/miniconda3/envs/lollms

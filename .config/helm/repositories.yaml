@@ -1,0 +1,237 @@
+apiVersion: ""
+generated: "0001-01-01T00:00:00Z"
+repositories:
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: argo
+    pass_credentials_all: false
+    password: ""
+    url: https://argoproj.github.io/argo-helm
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: bitnami
+    pass_credentials_all: false
+    password: ""
+    url: https://charts.bitnami.com/bitnami
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: ckotzbauer
+    pass_credentials_all: false
+    password: ""
+    url: https://ckotzbauer.github.io/helm-charts
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: cockroachdb
+    pass_credentials_all: false
+    password: ""
+    url: https://charts.cockroachdb.com/
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: confluentinc
+    pass_credentials_all: false
+    password: ""
+    url: https://packages.confluent.io/helm
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: datawire
+    pass_credentials_all: false
+    password: ""
+    url: https://app.getambassador.io
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: ebs-csi
+    pass_credentials_all: false
+    password: ""
+    url: https://kubernetes-sigs.github.io/aws-ebs-csi-driver
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: eks
+    pass_credentials_all: false
+    password: ""
+    url: https://aws.github.io/eks-charts
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: grafana
+    pass_credentials_all: false
+    password: ""
+    url: https://grafana.github.io/helm-charts
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: harbor
+    pass_credentials_all: false
+    password: ""
+    url: https://helm.goharbor.io
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: istio
+    pass_credentials_all: false
+    password: ""
+    url: https://istio-release.storage.googleapis.com/charts
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: jetstack
+    pass_credentials_all: false
+    password: ""
+    url: https://charts.jetstack.io
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: keda
+    pass_credentials_all: false
+    password: ""
+    url: https://kedacore.github.io/charts
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: kiali
+    pass_credentials_all: false
+    password: ""
+    url: https://kiali.org/helm-charts
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: longhorn
+    pass_credentials_all: false
+    password: ""
+    url: https://charts.longhorn.io
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: metrics-server
+    pass_credentials_all: false
+    password: ""
+    url: https://kubernetes-sigs.github.io/metrics-server/
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: nats
+    pass_credentials_all: false
+    password: ""
+    url: https://nats-io.github.io/k8s/helm/charts/
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: nfs
+    pass_credentials_all: false
+    password: ""
+    url: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: numaflow
+    pass_credentials_all: false
+    password: ""
+    url: https://numaproj.io/helm-charts
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: opensearch
+    pass_credentials_all: false
+    password: ""
+    url: https://opensearch-project.github.io/helm-charts
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: ot-helm
+    pass_credentials_all: false
+    password: ""
+    url: https://ot-container-kit.github.io/helm-charts
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: prometheus
+    pass_credentials_all: false
+    password: ""
+    url: https://prometheus-community.github.io/helm-charts
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: rancher
+    pass_credentials_all: false
+    password: ""
+    url: https://releases.rancher.com/server-charts/latest
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: seldon
+    pass_credentials_all: false
+    password: ""
+    url: https://storage.googleapis.com/seldon-charts
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: vcluster
+    pass_credentials_all: false
+    password: ""
+    url: https://charts.loft.sh
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: zipkin
+    pass_credentials_all: false
+    password: ""
+    url: https://zipkin.io/zipkin-helm
+    username: ""

@@ -1,0 +1,16 @@
+-- https://wiki.postgresql.org/wiki/Psqlrc
+-- https://www.postgresql.org/docs/current/app-psql.html
+
+\set QUIET 1
+-- prompts with color
+\set PROMPT1 '%[%033[1;34m%n%[%033[0m%[%033[1;31m@%[%033[0m%[%033[1;32m%/%[%033[0m%[%033[1;31m%R%#%[%033[1;34m%x%[%033[0m '
+\set PROMPT2 '%[%033[1;34m%n%[%033[0m%[%033[1;31m@%[%033[0m%[%033[1;32m%/%[%033[0m%[%033[1;34m%R%#%[%033[0m '
+-- prompts without color
+-- \set PROMPT1 '%n@%/%R%#%x '
+-- \set PROMPT2 '%n@%/%R%# '
+\set COMP_KEYWORD_CASE upper
+-- \set PAGER OFF
+\set HISTSIZE 1000
+\pset null 'NULL'
+-- \timing
+\x auto

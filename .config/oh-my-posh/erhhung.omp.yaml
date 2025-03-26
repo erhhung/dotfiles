@@ -1,0 +1,105 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json
+
+secondary_prompt:
+  template: "  <b>{{ if .Root }} \uf0e7 {{ else }}❯{{ end }}</> "
+  foreground: "#ffffff"
+  background: transparent
+iterm_features:
+- current_dir
+- remote_host
+blocks:
+- type: prompt
+  alignment: left
+  segments:
+  - template: ╭─
+    foreground: "#888888"
+    type: text
+    style: plain
+  - properties:
+      folder_separator_icon: "<#ddee80>∕</>"
+      style: full
+    leading_diamond: 
+    trailing_diamond: 
+    template: "<b>{{ replaceP \"^/\" (replaceP \"^~<#ddee80>∕</>\" .Path \"\ueb06 \") \"<#ddee80>∕</>\" }}</>"
+    foreground: "#e4e4e4"
+    background: "#404040"
+    type: path
+    style: diamond
+  - properties:
+      display_default: false
+    trailing_diamond: 
+    template: " \ue7ad {{ .Profile }}{{ if .Region }} ⁞ {{ .Region }}{{ end }}"
+    foreground: "#2f2f40"
+    background: "#30c8a8"
+    type: aws
+    style: diamond
+  - trailing_diamond: 
+    template: " ⎈ {{ .Context }} ⁞ {{ or .Namespace \"default\" }}"
+    foreground: "#e4e4e4"
+    background: "#1060c0"
+    type: kubectl
+    style: diamond
+  - trailing_diamond: 
+    template: " \ue235 {{ if .Error }}{{ .Error }}{{ else }}{{ if .Venv }}{{ .Venv }} {{ end }}{{ .Full }}{{ end }}</>"
+    foreground: "#96e072"
+    background: "#2f2f2f"
+    type: python
+    style: diamond
+  - properties:
+      branch_icon: "\ue725 "
+      fetch_status: true
+      fetch_upstream_icon: true
+    trailing_diamond: 
+    template: " {{ .HEAD }} {{ if .Working.Changed }}{{ .Working.String }}{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }} |{{ end }}{{ if .Staging.Changed }}<#ef5350> \uf046 {{ .Staging.String }}</>{{ end }}"
+    foreground: "#011620"
+    background: "#fffb40"
+    type: git
+    style: diamond
+    background_templates:
+    - "{{ if or (.Working.Changed) (.Staging.Changed) }}#ffeb95{{ end }}"
+    - "{{ if and (gt .Ahead 0) (gt .Behind 0) }}#c5e478{{ end }}"
+    - "{{ if gt .Ahead 0 }}#c792ea{{ end }}"
+    - "{{ if gt .Behind 0 }}#c792ea{{ end }}"
+  newline: true
+- type: prompt
+  alignment: right
+  segments:
+  - properties:
+      always_enabled: true
+      style: austin
+    leading_diamond: 
+    trailing_diamond: 
+    template:  {{ .FormattedMs }}
+    foreground: "#ffffff"
+    background: "#d770a0"
+    type: executiontime
+    style: diamond
+  - properties:
+      time_format: 3:04:05pm
+    trailing_diamond: 
+    template: " {{ .CurrentDate | date .Format | trimSuffix \"m\" }}"
+    foreground: "#ffffff"
+    background: "#1888c0"
+    type: time
+    style: diamond
+- type: prompt
+  alignment: left
+  segments:
+  - template: "<#888888>╰─"
+    type: text
+    style: plain
+  - leading_diamond: 
+    trailing_diamond: 
+    template: 
+    foreground: "#fffb38"
+    background: "#ef5350"
+    type: root
+    style: diamond
+  - properties:
+      always_enabled: true
+    template: "<b>{{ if not .Root }}<{{ if eq .Code 0 }}#fffb38{{ else }}#ef5350{{ end }}>❯{{ end }}</>"
+    type: status
+    style: diamond
+  newline: true
+version: 3
+final_space: true

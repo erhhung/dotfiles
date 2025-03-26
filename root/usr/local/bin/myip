@@ -1,0 +1,78 @@
+#!/usr/bin/env perl
+#
+# myip - get the IP address(es) of this host
+#
+# Usage: myip [-6] [prefix]
+#        myip  -p
+#
+#        -6 - get IPv6 address instead of IPv4
+#        -p - get public IPv4 address from ISP
+#    prefix - match all NICs having partial or
+#             full name. e.g., en, eth, wlan
+#
+# Author: Erhhung Yuan (erhhung@alum.mit.edu)
+
+use feature qw(say);
+use strict;
+
+my $inet6  = 0;
+my $prefix = shift(@ARGV);
+if ($prefix =~ /^-(?![6p]$)/) {
+
+  say "myip - get the IP address of this host";
+  say "Usage: myip [-6] [prefix]";
+  say "       myip  -p";
+  say "";
+  say "           -6: get IPv6 address instead of IPv4";
+  say "           -p: get public IPv4 address from ISP";
+  say "       prefix: match the first NIC having partial";
+  say "               or full name. e.g., eth, wlan, en1";
+  exit;
+}
+
+if ($prefix eq "-p") {
+  # https://www.tecmint.com/find-linux-server-public-ip-address/
+  my $ip = `/usr/bin/dig +short myip.opendns.com \@resolver1.opendns.com`;
+  $ip =~ s/^\s+|\s+$//g;
+  say $ip;
+  exit;
+}
+if ($prefix eq "-6") {
+  $inet6  = 1;
+  $prefix = shift(@ARGV);
+}
+
+my $pattern;
+if ($prefix) {
+  $pattern = "(" . quotemeta($prefix) . "\\w*)";
+} else {
+  $pattern = "(\\w+)";
+}
+
+my $dev;
+my $code = 1;
+my @data = `/sbin/ifconfig`;
+foreach my $line (@data) {
+
+  # find line with matched device
+  if ($line =~ /^$pattern:?\s+/i) {
+    if ($1 =~ /^(lo|docker)/) {
+      # skip loopback & docker
+      $dev = undef;
+    } else {
+      $dev = $1;
+    }
+  }
+  elsif ($line =~ /^\w+/) {
+    $dev = undef;
+  }
+  elsif ($dev && ((!$inet6 && $line =~ /\s+inet\s(addr:\s?)?([0-9.]+)/) ||
+                   ($inet6 && $line =~ /\s+inet6\s(addr:\s?)?([0-9a-f:\/.]+)/i))) {
+    say $2;
+    if (!$prefix) {
+      exit;
+    }
+    $code = 0;
+  }
+}
+exit $code;

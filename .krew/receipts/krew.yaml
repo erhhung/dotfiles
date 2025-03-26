@@ -1,0 +1,115 @@
+apiVersion: krew.googlecontainertools.github.com/v1alpha2
+kind: Plugin
+metadata:
+  creationTimestamp: "2023-12-28T23:50:49Z"
+  name: krew
+spec:
+  caveats: |
+    krew is now installed! To start using kubectl plugins, you need to add
+    krew's installation directory to your PATH:
+
+      * macOS/Linux:
+        - Add the following to your ~/.bashrc or ~/.zshrc:
+            export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+        - Restart your shell.
+
+      * Windows: Add %USERPROFILE%\.krew\bin to your PATH environment variable
+
+    To list krew commands and to get help, run:
+      $ kubectl krew
+    For a full list of available plugins, run:
+      $ kubectl krew search
+
+    You can find documentation at
+      https://krew.sigs.k8s.io/docs/user-guide/quickstart/.
+  homepage: https://krew.sigs.k8s.io/
+  platforms:
+  - bin: krew
+    files:
+    - from: ./krew-darwin_amd64
+      to: krew
+    - from: ./LICENSE
+      to: .
+    selector:
+      matchLabels:
+        arch: amd64
+        os: darwin
+    sha256: 7ff3dde825734e74f4975c8e922b4419639e5fbff738786ab085cf06a0d1ccc0
+    uri: https://github.com/kubernetes-sigs/krew/releases/download/v0.4.5/krew-darwin_amd64.tar.gz
+  - bin: krew
+    files:
+    - from: ./krew-darwin_arm64
+      to: krew
+    - from: ./LICENSE
+      to: .
+    selector:
+      matchLabels:
+        arch: arm64
+        os: darwin
+    sha256: 5e33636a73392cf88021a85162ac4d4c86d4c0b57677e64094bcbcca637068e6
+    uri: https://github.com/kubernetes-sigs/krew/releases/download/v0.4.5/krew-darwin_arm64.tar.gz
+  - bin: krew
+    files:
+    - from: ./krew-linux_amd64
+      to: krew
+    - from: ./LICENSE
+      to: .
+    selector:
+      matchLabels:
+        arch: amd64
+        os: linux
+    sha256: bacc06800bda14ec063cd0b6f377a961fdf4661c00366bf9834723cd28bfabc7
+    uri: https://github.com/kubernetes-sigs/krew/releases/download/v0.4.5/krew-linux_amd64.tar.gz
+  - bin: krew
+    files:
+    - from: ./krew-linux_arm
+      to: krew
+    - from: ./LICENSE
+      to: .
+    selector:
+      matchLabels:
+        arch: arm
+        os: linux
+    sha256: 856f212fc83c22082cba1bedc5eac3d601f9d19a0f442a7e18db054b5cef35e9
+    uri: https://github.com/kubernetes-sigs/krew/releases/download/v0.4.5/krew-linux_arm.tar.gz
+  - bin: krew
+    files:
+    - from: ./krew-linux_arm64
+      to: krew
+    - from: ./LICENSE
+      to: .
+    selector:
+      matchLabels:
+        arch: arm64
+        os: linux
+    sha256: e02bdb8fe67cd6641b9ed6b45c6d084f7aa5b161fe49191caf5b1d5e83b0c0f9
+    uri: https://github.com/kubernetes-sigs/krew/releases/download/v0.4.5/krew-linux_arm64.tar.gz
+  - bin: krew
+    files:
+    - from: ./krew-linux_ppc64le
+      to: krew
+    - from: ./LICENSE
+      to: .
+    selector:
+      matchLabels:
+        arch: ppc64le
+        os: linux
+    sha256: 5b969d0c3d1483f82113faeed0e704d5732bae83d17ac400538ad2a6bb492a00
+    uri: https://github.com/kubernetes-sigs/krew/releases/download/v0.4.5/krew-linux_ppc64le.tar.gz
+  - bin: krew.exe
+    files:
+    - from: ./krew-windows_amd64.exe
+      to: krew.exe
+    - from: ./LICENSE
+      to: .
+    selector:
+      matchLabels:
+        arch: amd64
+        os: windows
+    sha256: 61cbe66d47c1f8e3ad4d778d136c293487efc7b2bf7085a3e30a6701a374b51d
+    uri: https://github.com/kubernetes-sigs/krew/releases/download/v0.4.5/krew-windows_amd64.tar.gz
+  shortDescription: Package manager for kubectl plugins.
+  version: v0.4.5
+status:
+  source:
+    name: default

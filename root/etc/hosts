@@ -1,0 +1,28 @@
+##
+# Host Database
+#
+# localhost is used to configure the loopback interface
+# when the system is booting.  Do not change this entry.
+##
+127.0.0.1       localhost
+::1             localhost
+255.255.255.255	broadcasthost
+
+192.168.2.1       firewall.fourteeners.local firewall
+192.168.0.2      poeswitch.fourteeners.local poeswitch
+192.168.0.3      mbrswitch.fourteeners.local mbrswitch
+192.168.0.4  homeassistant.fourtenners.local    ha.fourteeners.local homeassistant ha
+192.168.0.5            pki.fourtenners.local    ca.fourteeners.local pki           ca
+192.168.86.28        envoy.fourteeners.local solar.fourteeners.local envoy         solar
+192.168.1.254      gateway.fourteeners.local modem.fourteeners.local gateway       modem
+192.168.0.100      pacific.fourteeners.local  qnap.fourteeners.local pacific  nas  qnap
+192.168.0.101      printer.fourteeners.local laser.fourteeners.local printer       laser
+192.168.0.151         xcp1.fourteeners.local xcp1
+192.168.0.152         xcp2.fourteeners.local xcp2
+192.168.0.161         xcp3.fourteeners.local xcp3
+192.168.0.162         xcp4.fourteeners.local xcp4
+192.168.0.153          xoa.fourteeners.local xoa
+192.168.0.163           xo.fourteeners.local xo
+192.168.0.154       cosmos.fourteeners.local duplicati.fourteeners.local cosmos    duplicati
+192.168.0.164      rancher.fourteeners.local    harbor.fourteeners.local rancher   harbor
+192.168.0.221      homelab.fourteeners.local    argocd.fourteeners.local homelab   argocd

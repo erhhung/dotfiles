@@ -1,0 +1,12 @@
+{
+  "theme": "~/.config/powerline-shell/themes/default.py",
+  "segments": [
+    "cwd",
+    "git"
+  ],
+  "cwd": {
+    "max_depth": 2,
+    "mode": "plain",
+    "full_cwd": true
+  }
+}

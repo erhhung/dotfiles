@@ -1,0 +1,115 @@
+apiVersion: krew.googlecontainertools.github.com/v1alpha2
+kind: Plugin
+metadata:
+  creationTimestamp: "2024-07-04T00:33:18Z"
+  name: tail
+spec:
+  description: |-
+    Kail https://github.com/boz/kail - "Just show me the logs"
+
+    Stream logs from all matched containers of all matched pods.  Match pods by service,
+    replicaset, deployment, and others.  Adjusts to a changing cluster - pods are
+    added and removed from logging as they fall in or out of the selection.
+
+    Documentation:
+
+      See https://github.com/boz/kail or
+
+      $ kubectl tail --help
+
+    Usage:
+
+      # match all pods
+      $ kubectl tail
+
+      # match pods in the 'frontend' namespace
+      $ kubectl tail --ns staging
+
+      # match pods belonging to a replicaset named 'workers' in any namespace.
+      $ kubectl tail --rs workers
+
+      # match pods belonging to the replicaset named 'workers' only in the 'staging' namespace
+      $ kubectl tail --rs staging/workers
+
+      # match pods belonging to both the service "frontend" and the deployment "webapp"
+      $ kubectl tail --svc frontend --deploy webapp
+  homepage: https://github.com/boz/kail
+  platforms:
+  - bin: kail
+    files:
+    - from: kail
+      to: .
+    - from: LICENSE.txt
+      to: .
+    selector:
+      matchLabels:
+        arch: arm64
+        os: darwin
+    sha256: 61c331113e3cdc40133f4b5f7a200862e281c23af3f6017bb71a71bae83b0caa
+    uri: https://github.com/boz/kail/releases/download/v0.17.4/kail_v0.17.4_darwin_arm64.tar.gz
+  - bin: kail
+    files:
+    - from: kail
+      to: .
+    - from: LICENSE.txt
+      to: .
+    selector:
+      matchLabels:
+        arch: amd64
+        os: darwin
+    sha256: 88f2f514760312d2f029e69e733575b65563c08f38f6e238f1f2bcc7f57fd661
+    uri: https://github.com/boz/kail/releases/download/v0.17.4/kail_v0.17.4_darwin_amd64v2.tar.gz
+  - bin: kail
+    files:
+    - from: kail
+      to: .
+    - from: LICENSE.txt
+      to: .
+    selector:
+      matchLabels:
+        arch: arm64
+        os: linux
+    sha256: c29c6e69b2ed1a8d8ae1ce00bf5857d2984c820c5c3b83bac9b9f04bc4b372d3
+    uri: https://github.com/boz/kail/releases/download/v0.17.4/kail_v0.17.4_linux_arm64.tar.gz
+  - bin: kail
+    files:
+    - from: kail
+      to: .
+    - from: LICENSE.txt
+      to: .
+    selector:
+      matchLabels:
+        arch: amd64
+        os: linux
+    sha256: aebdf0401a46b26189eeec2cdd8539675805fcfa68a4561c9ae1993f275c3358
+    uri: https://github.com/boz/kail/releases/download/v0.17.4/kail_v0.17.4_linux_amd64v2.tar.gz
+  - bin: kail.exe
+    files:
+    - from: kail.exe
+      to: .
+    - from: LICENSE.txt
+      to: .
+    selector:
+      matchLabels:
+        arch: arm64
+        os: windows
+    sha256: e3313c1d02ec9192694484cd59ddc59fd8f10d07a89bc551d8dd6e2e6bdaa5ec
+    uri: https://github.com/boz/kail/releases/download/v0.17.4/kail_v0.17.4_windows_arm64.tar.gz
+  - bin: kail.exe
+    files:
+    - from: kail.exe
+      to: .
+    - from: LICENSE.txt
+      to: .
+    selector:
+      matchLabels:
+        arch: amd64
+        os: windows
+    sha256: 393a2951ce0828ea2f796a12504f792033ad2b931e33428a2f57dee5741eba09
+    uri: https://github.com/boz/kail/releases/download/v0.17.4/kail_v0.17.4_windows_amd64v2.tar.gz
+  shortDescription: Stream logs from multiple pods and containers using simple, dynamic
+    source selection.
+  version: v0.17.4
+status:
+  source:
+    name: default

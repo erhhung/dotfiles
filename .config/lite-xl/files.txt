@@ -1,0 +1,51 @@
+$ tree -L2 -I ws
+[38;5;30m.[0m
+├── [38;5;30mcolors[0m
+│   └── [38;5;81mvscode-dark.lua[0m
+├── [38;5;253mfilelist.txt[0m
+├── [38;5;30mfonts[0m
+│   ├── [38;5;66mDroidSansMNerdFontMono-Regular.otf[0m -> [38;5;66m/Users/erhhung/Library/Fonts/DroidSansMNerdFontMono-Regular.otf[0m
+│   └── [38;5;66mIntoneMonoNerdFontPropo-Medium.ttf[0m -> [38;5;66m/Users/erhhung/Library/Fonts/IntoneMonoNerdFontPropo-Medium.ttf[0m
+├── [38;5;81minit.lua[0m
+├── [38;5;30mlibraries[0m
+│   ├── [38;5;30mcoro_diff[0m
+│   ├── [38;5;30mencoding[0m
+│   ├── [38;5;81mjson.lua[0m
+│   ├── [38;5;30mnodejs[0m
+│   └── [38;5;30mwidget[0m
+├── [38;5;30mplugins[0m
+│   ├── [38;5;81malign_carets.lua[0m
+│   ├── [38;5;81mcustom_caret.lua[0m
+│   ├── [38;5;81mencodings.lua[0m
+│   ├── [38;5;81mgitstatus.lua[0m
+│   ├── [38;5;81mgofmt.lua[0m
+│   ├── [38;5;81mlanguage_go.lua[0m
+│   ├── [38;5;81mlanguage_ignore.lua[0m
+│   ├── [38;5;81mlanguage_ini.lua[0m
+│   ├── [38;5;81mlanguage_json.lua[0m
+│   ├── [38;5;81mlanguage_make.lua[0m
+│   ├── [38;5;81mlanguage_psql.lua[0m
+│   ├── [38;5;81mlanguage_sh.lua[0m
+│   ├── [38;5;81mlanguage_ssh_config.lua[0m
+│   ├── [38;5;81mlanguage_toml.lua[0m
+│   ├── [38;5;81mlanguage_ts.lua[0m
+│   ├── [38;5;81mlanguage_yaml.lua[0m
+│   ├── [38;5;30mlintplus[0m
+│   ├── [38;5;30mlsp[0m
+│   ├── [38;5;30mlsp_json[0m
+│   ├── [38;5;30mlsp_lua[0m
+│   ├── [38;5;30mlsp_python[0m
+│   ├── [38;5;30mlsp_quicklintjs[0m
+│   ├── [38;5;81mlsp_snippets.lua[0m
+│   ├── [38;5;30mlsp_typescript[0m
+│   ├── [38;5;30mlsp_yaml[0m
+│   ├── [38;5;30mplugin_manager[0m
+│   ├── [38;5;81msearch_ui.lua[0m
+│   ├── [38;5;81msettings.lua[0m
+│   ├── [38;5;81msnippets.lua[0m
+│   ├── [38;5;81msort.lua[0m
+│   └── [38;5;30mterminal[0m
+├── [38;5;81msession.lua[0m
+└── [38;5;81muser_settings.lua[0m
+
+19 directories, 29 files

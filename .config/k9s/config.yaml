@@ -1,0 +1,79 @@
+# $XDG_HOME/k9s/config.yaml
+# https://k9scli.io/topics/config/
+k9s:
+  # Enable periodic refresh of resource browser windows. Default is false.
+  liveViewAutoRefresh: false
+  # UI poll interval in seconds. Default is 2.
+  refreshRate: 10
+  # Number of retries once the connection to the api-server is lost. Default is 15.
+  maxConnRetry: 5
+  # Specifies if modification commands like delete/kill/edit are disabled. Default is false.
+  readOnly: false
+  # Toggles whether k9s should exit when CTRL-C is pressed. When set to true, you will need to exist k9s via the :quit command. Default is false.
+  noExitOnCtrlC: false
+  ui: # NOTE! [K9s v0.30.0]
+    # Enable mouse support. Default is false.
+    enableMouse: true
+    # Set to true to hide K9s header. Default is false.
+    headless: false
+    # Set to true to hide K9s logo. Default is false.
+    logoless: true
+    # Set to true to hide K9s crumbs. Default is false.
+    crumbsless: false
+    # Toggles reactive UI. This option provide for watching on disk artifacts changes and update the UI live. Defaults to false.
+    reactive: false
+    # Toggles icons display as not all terminal support these chars.
+    noIcons: false
+    # Skin file name under $XDG_HOME/k9s/skins, without extension.
+    skin: one-dark-erhhung
+  # Toggles whether k9s should check for the latest revision from the Github repository releases. Default is false.
+  skipLatestRevCheck: false
+  # Disable count pods while in node view. Default is false.
+  disablePodCounting: false
+  # ShellPod configuration applies to all your clusters.
+  shellPod:
+    # The shell pod image to use.
+    image: busybox:1.37
+    # The namespace to launch to shell pod into.
+    namespace: default
+    # The resource limit to set on the shell pod.
+    limits:
+      cpu: 100m
+      memory: 100Mi
+    # Enable TTY
+    tty: true
+  # ImageScan config changed from v0.29.0!
+  imageScans:
+    enable: false
+    # Exclusions excludes namespaces or specific workload labels.
+    exclusions:
+      # Exclude the following namespaces for image vulscans!
+      namespaces:
+        - kube-system
+      # Exclude pods with the following labels from image vulscans!
+      labels:
+        k8s-app: []
+        env:
+          - dev
+  # Logs configuration
+  logger:
+    # Defines the number of lines to return. Default is 100.
+    tail: 1000
+    # Defines the total number of log lines to allow in the view. Default is 1000.
+    buffer: 5000
+    # Represents how far to go back in the log timeline in seconds. Setting to -1 will tail logs. Default is -1.
+    sinceSeconds: 3600
+    # Go full screen while displaying logs. Default is false.
+    fullScreen: false
+    # Toggles log line wrap. Default is false.
+    textWrap: false
+    # Toggles log line timestamp info. Default is false.
+    showTime: false
+  # Global memory/cpu thresholds. When set will alert when thresholds are met.
+  thresholds:
+    cpu:
+      critical: 90
+      warn: 70
+    memory:
+      critical: 90
+      warn: 70

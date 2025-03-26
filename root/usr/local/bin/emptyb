@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+#
+# empty entire S3 bucket
+# usage: emptyb <bucket>
+#
+# author: Erhhung Yuan <erhhung@alum.mit.edu>
+
+bucket=$1
+
+if [ -z "$bucket" ]; then
+  echo "Empty entire S3 bucket"
+  echo "Usage: emptyb <bucket>"
+  exit
+fi
+
+# require given commands
+# to be $PATH accessible
+# _require foo bar || return 1
+_require() {
+  for bin in "$@"; do
+    if ! hash $bin 2> /dev/null; then
+      echo >&2 "Please install \"$_\" first!"
+      return 1
+    fi
+  done
+}
+_require aws jq || exit 1
+
+PAGE_SIZE=500
+
+# _delobjs <type> <label>
+_delobjs() {
+  type=$1 label=$2
+  opts=() token=""
+
+  while [ "$token" != "null" ]; do
+    page="$(aws s3api list-object-versions \
+              --bucket $bucket \
+              --query="[{
+                Objects: ${type}[].{
+                  Key: Key,
+                  VersionId: VersionId
+                }},
+                NextToken]" \
+               "${opts[@]}" \
+              --page-size $PAGE_SIZE \
+              --max-items $PAGE_SIZE \
+              --output json)" || exit $?
+
+     objs="$(jq '.[0] | .+={Quiet: true}' <<< "$page")"
+    count="$(jq '.Objects | length' <<< "$objs")"
+    token="$(jq -r '.[1]' <<< "$page")"
+    opts=(--starting-token "$token")
+
+    if [[ $count -gt 0 ]]; then
+      aws s3api delete-objects \
+        --bucket $bucket \
+        --delete "$objs"
+      jq -r '.Objects[].Key | "['$label'] "+.' <<< "$objs"
+    fi
+  done
+}
+
+_delobjs Versions      VER
+_delobjs DeleteMarkers DEL

@@ -1,0 +1,200 @@
+[core]
+abbrev = 8
+pager = delta
+
+[color]
+ui = auto
+
+[init]
+defaultBranch = main
+
+[gc]
+autoDetach = false
+
+[alias]
+st = status
+# show commit user info
+who = !echo "$(git config user.name) \\<$(git config user.email)\\>"
+# edit this config file
+ec = config --global -e
+# show current branch
+cb = rev-parse --abbrev-ref HEAD
+# get remote repo name
+name = !basename -s .git "$(git config --get remote.origin.url)"
+# show root path of this project
+root = "!f() { \
+  r=$(git rev-parse --show-superproject-working-tree); \
+  [ "$r" ] && echo $r || git rev-parse --show-toplevel; \
+}; f"
+# show HEAD commit hash
+hash = rev-parse --short HEAD
+# show HEAD commit log
+head = log --name-status -n 1 HEAD~1..HEAD
+# list tracked remotes
+lsr = remote -v
+# list local branches
+lsb = !git branch --no-color | colrm 1 2
+# list remote branches
+lsrb = !git ls-remote --heads origin | colrm 1 59
+# remove local branch
+rmb = branch -d
+# remove remote branch
+rmrb = push origin -d
+# diff previous commits
+diff0  = diff  HEAD~0
+diff1  = diff  HEAD~1
+diff10 = diff1 HEAD~0
+diff2  = diff  HEAD~2
+diff20 = diff2 HEAD~0
+diff3  = diff  HEAD~3
+diff30 = diff3 HEAD~0
+# show previous commits
+show0 = "!f() { \
+  [[ "$1" =~ ^[0-9]+$ ]] && { p=$1; shift; }; \
+  [  "$1" ] && f=":$1"; \
+  git show HEAD~${p:-0}$f; \
+}; f"
+show1 = show0 1
+show2 = show0 2
+show3 = show0 3
+# list files committed
+ls0 = diff-tree --no-commit-id --name-only -m -r HEAD~0
+ls1 = diff-tree --no-commit-id --name-only -m -r HEAD~1
+ls2 = diff-tree --no-commit-id --name-only -m -r HEAD~2
+ls3 = diff-tree --no-commit-id --name-only -m -r HEAD~3
+wc = whatchanged
+# last commit message
+last = !echo "$(git log -1 --pretty=%B)"
+# show tag message
+tagm = tag -l --format=\"%(contents:subject)\"
+# show commit history
+# https://git-scm.com/docs/pretty-formats
+hist = log --graph --date=short --pretty=format:\"%>|(6)%C(white)┃ %C(yellow)%h %C(brightcyan)%ad %C(white)┃ %Creset%s%C(brightred bold)%d %C(blue)[%C(magenta)%G?%C(white):%C(blue italic)%ae%C(reset blue)]\"
+# edit commit history
+ehist = "!f() { \
+  git rebase -i ${1:-HEAD~1}; \
+}; f"
+# clone CodeCommit repo
+# pip install git-remote-codecommit
+clonecc = "!f() { \
+  git clone \"codecommit://${2:-cicd}@$1\" && \
+  cd \"$1\"; \
+}; f"
+# list CodeCommit repos
+ccrepos = "!f() { \
+  aws codecommit list-repositories \
+    --query 'repositories[].[repositoryName]' \
+    --profile ${1:-cicd} --output text; \
+}; f"
+sub = submodule
+# fetch plus submodules
+up = "!f() { \
+  git pull --rebase --prune --tags -f \"$@\" && \
+  git submodule update --init --recursive; \
+}; f"
+co = checkout
+# create new branch
+cob = checkout -b
+# switch to branch only if it exists
+coif = "!f() { \
+  b=$(git ls-remote -h origin ${1:-%}); \
+  [ -n \"$b\" ] && git checkout $1; \
+}; f"
+cm = commit -m
+# commit & sign
+cms = commit -S -m
+# add & commit new & existing files
+cma  = !git add -A && git cm
+cmas = !git add -A && git cms
+touch = commit --allow-empty -m
+save = !git cm SAVED
+wipe = !git cm WIPED -q && git reset HEAD~1 --hard
+wip = commit -am "WIP"
+# amend previous commit [w/ message]
+amend = "!f() { \
+  a() { git commit --amend \"$@\"; }; \
+  [ -n \"$1\" ] && a -m \"$1\"; \
+  [ -z \"$1\" ] && a -C HEAD; \
+}; f"
+undo = reset HEAD~1 --mixed
+# debug git command
+db = !GIT_TRACE=1 git
+dt = difftool
+mt = mergetool
+
+[user]
+name = Erhhung Yuan
+email = erhhung@gmail.com
+# https://docs.github.com/en/github/authenticating-to-github/managing-commit-signature-verification/telling-git-about-your-signing-key
+signingkey = B9C45C9F62942408
+
+[credential]
+helper = osxkeychain
+
+[push]
+default = simple
+autoSetupRemote = true
+
+[pull]
+rebase = true
+
+[branch]
+autoSetupRebase = always
+
+[filter "lfs"]
+required = true
+clean = git-lfs clean -- %f
+smudge = git-lfs smudge -- %f
+process = git-lfs filter-process
+
+[url "https://github.com/"]
+insteadOf = git@github.com:
+
+[url "https://gitlab.com/"]
+insteadOf = git@gitlab.com:
+
+[diff]
+tool = vscode
+colorMoved = default
+
+[difftool]
+prompt = false
+
+[difftool "vscode"]
+# for "git dt" alias
+#cmd = code --diff --new-window --wait $LOCAL $REMOTE
+ cmd = code --diff --wait $LOCAL $REMOTE
+
+[merge]
+tool = vscode
+conflictStyle = diff3
+
+[mergetool "vscode"]
+# for "git mt" alias
+cmd = code --new-window --wait $MERGED
+
+#=====================================#
+# https://github.com/dandavison/delta #
+#=====================================#
+
+[pager]
+diff = delta
+log = delta
+reflog = delta
+show = delta
+
+[interactive]
+diffFilter = delta --color-only
+
+[delta]
+features = side-by-side line-numbers decorations
+syntax-theme = Monokai Extended Bright
+whitespace-error-style = 22 reverse
+plus-style = "syntax #012800"
+minus-style = "syntax #340001"
+navigate = true
+
+[delta "decorations"]
+commit-decoration-style = bold yellow box ul
+file-style = bold yellow ul
+file-decoration-style = none

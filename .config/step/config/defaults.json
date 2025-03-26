@@ -1,0 +1,9 @@
+{
+  "ca-url": "https://pki.fourteeners.local",
+  "redirect-url": "",
+  "fingerprint": "2e0f92dfad77c37dee1d52e01eb027a94ff9203dafde94a56fa6f00240263a28",
+  "root": "/Users/erhhung/.config/step/certs/root_ca.crt",
+  "admin-subject": "erhhung",
+  "admin-provisioner": "erhhung@fourteeners.local",
+  "admin-password-file": "/Users/erhhung/.config/step/admin/pass"
+}

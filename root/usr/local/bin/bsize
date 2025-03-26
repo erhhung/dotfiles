@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+#
+# show S3 bucket size/count
+# usage: bsize <bucket>
+#
+# author: Erhhung Yuan <erhhung@alum.mit.edu>
+
+bucket=$1
+
+if [ -z "$bucket" ]; then
+  echo 'Show S3 bucket size/count'
+  echo 'Usage: bsize <bucket>'
+  exit
+fi
+
+# get first command
+# available in $PATH
+# _altcmd gsort sort
+_altcmd() {
+  for bin in "$@"; do
+    if hash $bin 2> /dev/null; then
+      printf $_ && return
+    fi
+  done
+  return 1
+}
+numfmt=$(_altcmd gnumfmt numfmt)
+
+# require given commands
+# to be $PATH accessible
+# _require foo bar || return 1
+_require() {
+  for bin in "$@"; do
+    if ! hash $bin 2> /dev/null; then
+      echo >&2 "Please install \"$_\" first!"
+      return 1
+    fi
+  done
+}
+_require aws jq ${numfmt:-numfmt} || exit 1
+
+# get bucket region
+region=$(aws s3api get-bucket-location \
+            --bucket $bucket 2> /dev/null | \
+  jq -r '.LocationConstraint // "us-east-1"')
+if [ -z "$region" ]; then
+  echo >&2 "Cannot determine bucket location!"
+  exit 1
+fi
+
+# https://docs.aws.amazon.com/AmazonS3/latest/userguide/metrics-dimensions.html
+stypes=(
+  StandardStorage
+  IntelligentTieringFAStorage
+  IntelligentTieringIAStorage
+  IntelligentTieringAAStorage
+  IntelligentTieringAIAStorage
+  IntelligentTieringDAAStorage
+  StandardIAStorage
+  StandardIASizeOverhead
+  StandardIAObjectOverhead
+  OneZoneIAStorage
+  OneZoneIASizeOverhead
+  ReducedRedundancyStorage
+  GlacierInstantRetrievalStorage
+  GlacierStorage
+  GlacierStagingStorage
+  GlacierObjectOverhead
+  GlacierS3ObjectOverhead
+  DeepArchiveStorage
+  DeepArchiveObjectOverhead
+  DeepArchiveS3ObjectOverhead
+  DeepArchiveStagingStorage)
+
+# _bsize <metric> <stype>
+_bsize() {
+  utnow=$(date +%s)
+  period=$((60*60*24*2))
+  metric=$1 stype=$2
+
+  aws cloudwatch get-metric-statistics  \
+    --start-time  $(($utnow - $period)) \
+    --end-time    $utnow  \
+    --period      $period \
+    --region      $region \
+    --namespace   AWS/S3  \
+    --metric-name $metric \
+    --dimensions  Name=BucketName,Value=$bucket \
+                  Name=StorageType,Value=$stype \
+    --statistics  Average 2> /dev/null | \
+    jq -r '.Datapoints[].Average // 0'
+}
+
+total=$(
+  (for stype in ${stypes[@]}; do
+      _bsize BucketSizeBytes $stype
+    done; echo 0) | \
+    paste -sd+ - | bc
+)
+count=$(_bsize NumberOfObjects AllStorageTypes)
+count=$(printf "%.0f\n" $count) # round to int
+
+# _print <label> <number> <units> <format> [suffix]
+_print() {
+  read label number units format suffix <<< "$@"
+  echo "$label"
+
+  numfmt $number \
+    --to="$units" \
+    --suffix="$suffix" \
+    --format="$format" | \
+    sed -En 's/([^0-9]+)$/ \1/p'
+}
+
+cols=($(
+  _print Size "0${total}" iec-i "%.2f" B
+  [ "0${count}" -lt 1000 ] && echo Count $count || \
+    _print Count "0${count}" si "%.2f"
+))
+printf "%5s: %6s %s\n" "${cols[@]}"

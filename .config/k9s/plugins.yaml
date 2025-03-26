@@ -1,0 +1,55 @@
+plugin:
+  logs-follow:
+    shortCut: Ctrl-L
+    description: "logs -f"
+    scopes:
+    - pods
+    - containers
+    command: kubectl
+    background: false
+    args:
+    - logs
+    - -f
+    - $NAME
+    - -c
+    - $CONTAINER
+    - -n
+    - $NAMESPACE
+    - --context
+    - $CONTEXT
+  log-less:
+    shortCut: Shift-L
+    description: "logs|less"
+    scopes:
+    - pods
+    - containers
+    command: bash
+    background: false
+    args:
+    - -c
+    - '"$@" | less'
+    - dummy
+    - kubectl
+    - logs
+    - $NAME
+    - -c
+    - $CONTAINER
+    - -n
+    - $NAMESPACE
+    - --context
+    - $CONTEXT
+  edit-secret:
+    shortCut: Ctrl-X
+    confirm: false
+    description: "Edit Decoded Secret"
+    scopes:
+      - secrets
+    command: kubectl
+    background: false
+    args:
+      - modify-secret
+      - --namespace
+      - $NAMESPACE
+      - --context
+      - $CONTEXT
+      - $NAME

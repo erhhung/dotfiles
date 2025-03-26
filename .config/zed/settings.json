@@ -1,0 +1,87 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run the `open default settings` command
+// from the command palette or from `Zed` application menu.
+{
+  "theme": "VSCode Dark Modern",
+  "experimental.theme_overrides": {
+    // Change the color of the primary cursor
+    // (players[] defines multi-cursor colors)
+    "players": [
+      {
+        //"cursor": "#5AC1FEFF",
+        "cursor": "#FFFF00FF",
+        "background": "#5AC1FEFF",
+        "selection": "#5AC1FE3D"
+      },
+      {
+        "cursor": "#39BAE5FF",
+        "background": "#39BAE5FF",
+        "selection": "#39BASE53D"
+      },
+      {
+        "cursor": "#FE8F40FF",
+        "background": "#FE8F40FF",
+        "selection": "#FE8f403D"
+      },
+      {
+        "cursor": "#D2A6FEFF",
+        "background": "#D2A6FEFF",
+        "selection": "#D2A6FE3D"
+      },
+      {
+        "cursor": "#95E5CBFF",
+        "background": "#95E5CBFF",
+        "selection": "#95E5CB3D"
+      },
+      {
+        "cursor": "#EF7177FF",
+        "background": "#EF7177FF",
+        "selection": "#EF71773D"
+      },
+      {
+        "cursor": "#FEB454FF",
+        "background": "#FEB454FF",
+        "selection": "#FEB4543D"
+      },
+      {
+        "cursor": "#AAD84CFF",
+        "background": "#AAD84CFF",
+        "selection": "#AAD84C3D"
+      }
+    ]
+  },
+  "tab_size": 2,
+  "ui_font": "DroidSansM Nerd Font",
+  "ui_font_size": 17,
+  "buffer_font_family": "DroidSansM Nerd Font",
+  "buffer_font_size": 17,
+  "buffer_font_weight": 600,
+  "buffer_line_height": "standard",
+  "cursor_shape": "block",
+  "cursor_blink": false,
+  "vertical_scroll_margin": 5,
+  "terminal": {
+    "copy_on_select": true,
+    "font_family": "DroidSansM Nerd Font",
+    "font_size": 17,
+    "font_weight": 600,
+    "line_height": {
+      "custom": 1.15
+    },
+    "toolbar": {
+      "title": false
+    }
+  },
+  "assistant": {
+    "version": "2",
+    "default_model": {
+      "provider": "copilot_chat",
+      "model": "gpt-4o"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+# $XDG_CONFIG_HOME/k9s/views.yml
+# https://k9scli.io/topics/columns/
+views:
+  v1/pods:
+    sortColumn: NAMESPACE:asc
+    columns:
+      - NAMESPACE
+      - NAME
+      - STATUS
+      - READY
+      - RESTARTS
+      - AGE
+      - PF
+      - IP
+      - NODE
+      - CPU
+      - MEM
+      - '%CPU/R'
+      - '%MEM/R'
+      - '%CPU/L'
+      - '%MEM/L'
+  v1/persistentvolumes:
+    sortColumn: CLAIM:asc
+    columns:
+      - NAME
+      - CAPACITY
+      - ACCESS MODES
+      - RECLAIM POLICY
+      - STATUS
+      - CLAIM
+      - STORAGECLASS
+      - AGE

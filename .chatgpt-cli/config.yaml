@@ -1,0 +1,4 @@
+# https://github.com/kardolus/chatgpt-cli
+
+model: gpt-4o
+max_tokens: 2000

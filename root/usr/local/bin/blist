@@ -1,0 +1,138 @@
+#!/usr/bin/env bash
+
+# list all S3 buckets including their regions
+# COLUMNS: <cdate> <ctime> <region> <bucket>
+#
+# 2022-08-22  10:02:42  #DELETED#  test-bucket-1
+# 2022-05-30  02:04:02  us-west-2  test-bucket-2
+#
+# NOTE: output is buffered until all buckets
+#       have been queried, so execution could
+#       take a while
+
+# get first command
+# available in $PATH
+# example: altcmd gsort sort
+# this is primarily so that GNU gFOO commands
+# (from coreutils) can be used on macOS while
+# on Linux the standard GNU command gets used
+altcmd() {
+  local cmd
+  for cmd in "$@"; do
+    if hash $cmd 2> /dev/null; then
+      printf $cmd && return
+    fi
+  done
+  return 1
+}
+date=$(altcmd gdate date)
+
+# get max widths of
+# one-word  columns
+colwidths() {
+  awk '{for (i=1; i<=NF; i++) {l=length($i); if (l>L[i]) L[i]=l;}} END \
+       {for (i=1; i<=length(L); i++) {printf L[i] "\n";}}'
+}
+
+# default concurrency = # of cores
+CONCURRENCY=${CONCURRENCY:-$(nproc)}
+
+# temp dir can be overridden to
+# ~/excl to reduce CPU overhead
+# due to CrowdStrike scanning
+TEMP_DIR="${TEMP_DIR:-/tmp}"
+
+# is the current # of running
+# background jobs spawned by
+# this shell < $CONCURRENCY?
+allow_job() {
+  local jobs=$(jobs -p | wc -l)
+  [ $jobs -lt $CONCURRENCY ] 2> /dev/null
+}
+
+# acquire lock
+# lock_acq [name]
+lock_acq() {
+  until mkdir "$TEMP_DIR/${1:-pid-$$}.lock" 2> /dev/null; do
+    sleep .1
+  done
+}
+
+# release lock
+# lock_rel [name]
+lock_rel() {
+  rmdir "$TEMP_DIR/${1:-pid-$$}.lock" 2> /dev/null
+}
+
+# increment semaphore
+# and print new count
+# sem_inc [name] [by]
+sem_inc() {
+  local name=$1 by=$2 file val
+  if [[ $name =~ ^-?[0-9]+$ ]]; then
+    by=$name; name=
+  fi
+  name="${name:-pid-$$}.sem"
+  file="$TEMP_DIR/$name"
+  lock_acq $name
+
+  [ -f "$file" ] && val=$(< "$file")
+  # don't decrement if no sem file
+  if [[ $val || $by != -* ]]; then
+    val=$((${val:-0} + ${by:-1}))
+    printf -- $val | tee "$file"
+  fi
+  lock_rel $name
+}
+
+# wait for semaphore<=0
+# then delete .sem file
+# sem_wait [name]
+sem_wait() {
+  local file="$TEMP_DIR/${1:-pid-$$}.sem"
+  while [[ -f "$file" && $(< "$file") -gt 0 ]]; do
+    sleep .1
+  done
+  rm -f "$file"
+}
+
+#  in: <cdate> <bucket>
+# out: <cdate> <ctime> <region> <bucket>
+extend_bucket_info() {
+  local region cdate=$1 bucket=$2
+  cdate=$($date -d $cdate "+%Y-%m-%d %T")
+  region=$(aws s3api get-bucket-location \
+               --bucket $bucket \
+               --query LocationConstraint \
+               --output text 2> /dev/null)
+  [ "$region" == "None" ] && region=us-east-1 || \
+            [ "$region" ] || region=#DELETED#
+  printf "%s %s %s\n" "$cdate" $region $bucket
+}
+
+# out: <cdate> <ctime> <region> <bucket>
+list_buckets() {
+  while read -a info; do
+    allow_job || wait -n
+
+    # spawn background job
+    ( sem_inc    > /dev/null
+      extend_bucket_info "${info[@]}"
+      sem_inc -1 > /dev/null
+    ) &
+  done < <(
+    aws s3api list-buckets \
+        --query 'Buckets[*].[CreationDate,Name]' \
+        --output text
+  )
+  sem_wait && wait
+}
+
+table=$(list_buckets)
+[ -z "$table" ] && exit
+w=($(colwidths <<< "$table"))
+
+while read -a cols; do
+  # cols: <cdate> <ctime> <region> <bucket> (default sort: name)
+  printf "%-${w[0]}s  %-${w[1]}s  %-${w[2]}s  %s\n" "${cols[@]}"
+done <<< "$table" | sort -k4b

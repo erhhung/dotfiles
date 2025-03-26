@@ -1,0 +1,71 @@
+apiVersion: krew.googlecontainertools.github.com/v1alpha2
+kind: Plugin
+metadata:
+  creationTimestamp: "2024-07-04T01:00:12Z"
+  name: get-all
+spec:
+  description: |2
+
+      Like 'kubectl get all', but get _really_ all resources
+
+      For a complete overview of all resources in a kubernetes cluster,
+       $ kubectl get all --all-namespaces
+      is not enough, because it simply does not show everything. This helper
+      lists _really_ all resources on the cluster.
+
+      More on https://github.com/corneliusweig/ketall/blob/master/doc/USAGE.md
+  homepage: https://github.com/corneliusweig/ketall
+  platforms:
+  - bin: get-all-amd64-linux
+    files:
+    - from: get-all-amd64-linux
+      to: .
+    - from: LICENSE
+      to: .
+    selector:
+      matchLabels:
+        arch: amd64
+        os: linux
+    sha256: f2595f998f02b64b4b360905a64bf72060a89060713d9120febf5451073e4071
+    uri: https://github.com/corneliusweig/ketall/releases/download/v1.3.8/get-all-amd64-linux.tar.gz
+  - bin: get-all-amd64-darwin
+    files:
+    - from: get-all-amd64-darwin
+      to: .
+    - from: LICENSE
+      to: .
+    selector:
+      matchLabels:
+        arch: amd64
+        os: darwin
+    sha256: 3a39db7c04c730bb1d2667cfbfd667b08fb2391c071be5a5d2f15eb3ea7391e1
+    uri: https://github.com/corneliusweig/ketall/releases/download/v1.3.8/get-all-amd64-darwin.tar.gz
+  - bin: get-all-arm64-darwin
+    files:
+    - from: get-all-arm64-darwin
+      to: .
+    - from: LICENSE
+      to: .
+    selector:
+      matchLabels:
+        arch: arm64
+        os: darwin
+    sha256: 1354ff2b1561ed752c9d25e7bf74200447ff3551f4b3eae1903d05d2ff6e727e
+    uri: https://github.com/corneliusweig/ketall/releases/download/v1.3.8/get-all-arm64-darwin.tar.gz
+  - bin: get-all-amd64-windows.exe
+    files:
+    - from: get-all-amd64-windows.exe
+      to: .
+    - from: LICENSE
+      to: .
+    selector:
+      matchLabels:
+        arch: amd64
+        os: windows
+    sha256: bc783037888fd9176f638dc65de6131ba076ad82f662ef400b897a37447c54c7
+    uri: https://github.com/corneliusweig/ketall/releases/download/v1.3.8/get-all-amd64-windows.zip
+  shortDescription: Like `kubectl get all` but _really_ everything
+  version: v1.3.8
+status:
+  source:
+    name: default
