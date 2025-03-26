@@ -96,6 +96,27 @@ verify_branch() {
 # read inventory into array
 mapfile -t paths < files.txt
 
+# list of files in this repo
+# that cannot be overwritten
+reserved=(
+  .git
+  .gitignore
+  LICENSE
+  README.md
+  images/copy-dryrun?.png
+  copy.sh
+  files.txt
+  hosts.txt
+)
+
+# fail if file is reserved
+check_reserved() {
+  if [[ "|$(IFS='|'; echo "${reserved[*]}")|" == *"|$1|"* ]]; then
+    echo >&2 -e "\n${THUMBDN}${RED}Cannot copy reserved file: $1${NOCLR}"
+    exit 1
+  fi
+}
+
   matches=()
 unmatched=()
   regular=()
@@ -139,9 +160,12 @@ for path in "${paths[@]}"; do
     if [[ "$is_file" || "$is_link" ]]; then
 
       if [ "$encrypt" ]; then
+        # no need to check if is reserved because
+        # all encrypted files have .age extension
         encrypted+=("$match")
         color="OCHRE"
       else
+        check_reserved "$match"
         regular+=("$match")
         color="WHITE"
       fi

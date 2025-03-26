@@ -102,9 +102,9 @@
 
 Library/Application Support/com.mitchellh.ghostty/config
 
+#README.md
+fake/path
 justfile
 
 /etc/hosts
 /usr/local/bin/{myip,blist,bsize,emptyb,ecrpush}
-
-fake/path
