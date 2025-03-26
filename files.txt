@@ -1,0 +1,109 @@
+# =========================================================
+# ================= SAMPLE INVENTORY FILE =================
+# =========================================================
+# leading & trailing whitespace ignored
+# comment lines begin with # character
+# trailing line comments not supported
+#
+# relative paths are relative to $HOME (so ~/ is redundant)
+# absolute paths begin with / (full path copied into root/)
+# directory paths end  with / (copy all files and symlinks)
+#
+# copies files and symlinks only
+# symlinks will not be followed
+#
+# special characters space, $ and & will be auto-escaped
+# manually escape other symbols if conflict with globbing
+#
+# paths support extended glob patterns (shopt -s extglob)
+# paths support   "**"   glob patterns (shopt -s globstar)
+# https://www.gnu.org/software/bash/manual/bash.html#Pattern-Matching
+#
+# files matching paths that begin with | will be encrypted
+# by `age` using identity (private key) file $AGE_KEY_FILE
+# (each branch should use a different key as best practice)
+#
+# IMPORTANT: always run `git diff` after running `copy.sh`.
+# it's your responsibility to make sure that no plain-text
+# secrets are checked into Git
+# =========================================================
+
+         ~/.zshrc?(_disabled)
+        ~/.bashrc?(_disabled)
+    .bash_profile?(_disabled)
+   |.bash_private?(_disabled)
+ .bash_completion?(_disabled)
+
+|.config/age/key.txt
+ .config/ansible/*.cfg
+|.config/argocd/config
+ .config/btop/btop.conf
+ .config/containers/containers.conf
+|.config/containers/auth.json
+ .config/emacs/init.el
+|.config/fabric/.env
+ .config/fabric/*patterns.txt
+|.config/fish/config.fish
+#.config/fish/functions/!(__*)
+ .config/gdu/gdu.yaml
+ .config/git/config
+|.config/github-copilot/hosts.json
+ .config/github-copilot/versions.json
+|.config/harlequin/config.toml
+ .config/helm/repositories.yaml
+ .config/helm/sortrepos.sh
+ .config/homebrew/brew.env
+ .config/htop/htoprc
+ .config/iterm2/*-profiles-*.json
+ .config/k9s/*.yaml
+ .config/k9s/skins/*-erhhung.yaml
+ .config/lazygit/config.yml
+ .config/less/filter
+ .config/lite-xl/files.txt
+ .config/lite-xl/{init,user*}.lua
+ .config/lite-xl/{colors,fonts}/
+ .config/lvim/
+|.config/maxmind/geoip.conf
+#.config/nats/*/!(*.bak)
+ .config/oh-my-posh/erhhung.omp.yaml
+ .config/omf/
+ .config/pg?(cli)/config
+ .config/powerline-shell/config.json
+ .config/qalculate/*.cfg
+|.config/rclone/rclone.conf
+ .config/step/!(admin)/
+|.config/step/admin/pass
+ .config/textualize/frogmouth/configuration.json
+ .config/tmux/!(plugins)
+ .config/totp-cli/credentials
+ .config/trippy/
+ .config/zed/*.json
+
+|.local/share/jan/.janrc
+|.local/share/jan/settings/@janhq/**/settings.json
+
+ .chatgpt-cli/config.yaml
+ .conda/
+|.confluent/config.json
+ .cups/lpoptions
+ .dircolors
+ .docker/*.json
+ .fzf.bash?(_completion)
+|.gnupg/**/!(.#*|*.lock)
+ .inputrc
+ .krew/receipts/
+|.kube/config
+ .kube/{NOTES,canonicalize}
+ .minikube/**/config.json
+|.ssh/{config,keys.tar.gz}
+ .ssh/keys.txt
+ .vscode/extensions/extensions.*
+
+Library/Application Support/com.mitchellh.ghostty/config
+
+justfile
+
+/etc/hosts
+/usr/local/bin/{myip,blist,bsize,emptyb,ecrpush}
+
+fake/path
