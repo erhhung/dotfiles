@@ -1,5 +1,5 @@
 # =========================================================
-# ================= SAMPLE INVENTORY FILE =================
+# =============== Erhhungs-i9-MBP INVENTORY ===============
 # =========================================================
 # leading & trailing whitespace ignored
 # comment lines begin with # character
@@ -101,9 +101,6 @@
  .vscode/extensions/extensions.*
 
 Library/Application Support/com.mitchellh.ghostty/config
-
-#README.md
-fake/path
 justfile
 
 /etc/hosts
