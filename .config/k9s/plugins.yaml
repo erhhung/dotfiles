@@ -1,3 +1,5 @@
+# $XDG_CONFIG_HOME/k9s/plugins.yaml
+# https://k9scli.io/topics/plugins/
 plugin:
   logs-follow:
     shortCut: Ctrl-L

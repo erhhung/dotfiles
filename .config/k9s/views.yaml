@@ -1,4 +1,4 @@
-# $XDG_CONFIG_HOME/k9s/views.yml
+# $XDG_CONFIG_HOME/k9s/views.yaml
 # https://k9scli.io/topics/columns/
 views:
   v1/pods:

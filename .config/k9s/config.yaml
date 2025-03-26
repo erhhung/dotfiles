@@ -1,4 +1,4 @@
-# $XDG_HOME/k9s/config.yaml
+# $XDG_CONFIG_HOME/k9s/config.yaml
 # https://k9scli.io/topics/config/
 k9s:
   # Enable periodic refresh of resource browser windows. Default is false.
@@ -24,7 +24,7 @@ k9s:
     reactive: false
     # Toggles icons display as not all terminal support these chars.
     noIcons: false
-    # Skin file name under $XDG_HOME/k9s/skins, without extension.
+    # Skin file name under $XDG_CONFIG_HOME/k9s/skins, without extension.
     skin: one-dark-erhhung
   # Toggles whether k9s should check for the latest revision from the Github repository releases. Default is false.
   skipLatestRevCheck: false
