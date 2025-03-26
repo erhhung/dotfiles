@@ -28,11 +28,12 @@
 # secrets are checked into Git
 # =========================================================
 
-         ~/.zshrc?(_disabled)
-        ~/.bashrc?(_disabled)
-    .bash_profile?(_disabled)
-   |.bash_private?(_disabled)
- .bash_completion?(_disabled)
+~/.zshrc
+~/.bashrc
+  .bash_profile
+ |.bash_private
+  .bash_completion
+ |.*_disabled
 
 |.config/age/key.txt
  .config/ansible/*.cfg

@@ -15,8 +15,11 @@
 # shellcheck disable=SC2155 # Declare and assign separately
 # shellcheck disable=SC2207 # Prefer mapfile to split output
 # shellcheck disable=SC2164 # Use cd || exit in case cd fails
+# shellcheck disable=SC2015 # A && B || C is not if-then-else
 # shellcheck disable=SC2086 # Double quote to prevent globbing
 # shellcheck disable=SC2291 # Quote to avoid collapsing spaces
+# shellcheck disable=SC2206 # Quote to prevent word splitting
+# shellcheck disable=SC2059 # Don't use vars in printf format
 
 cd "$(dirname "$0")"
 GIT_DIR=$(builtin pwd)
@@ -29,9 +32,10 @@ shopt -u dotglob failglob nocaseglob
 
   NOCLR='\033[0m'
     RED='\033[0;31m'
-  GREEN='\033[0;32m' # symlinks        shown in this color
-  OCHRE='\033[0;33m' # encrypted files shown in this color
+  GREEN='\033[0;32m' # symlink   files shown in this color
   WHITE='\033[1;37m' # regular   files shown in this color
+  OCHRE='\033[0;33m' # encrypted files shown in this color
+   GRAY='\033[1;30m' # unchanged files shown in this color
 LTGREEN='\033[1;32m'
  LTBLUE='\033[1;34m'
  LTCYAN='\033[1;36m'
@@ -55,9 +59,9 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-# suppress color if not outputing to terminal
-[ -t 1 ] || unset NOCLR WHITE RED GREEN OCHRE \
-  LTGREEN LTBLUE LTCYAN THUMBUP THUMBDN WARNING
+# suppress color & symbols if output not to terminal
+[ -t 1 ] || unset NOCLR RED GREEN WHITE OCHRE GRAY \
+    LTGREEN LTBLUE LTCYAN THUMBUP THUMBDN WARNING
 
 verify_branch() {
   local branch host hosts user=$(whoami)
@@ -197,13 +201,14 @@ prepare_dest() {
     dest="root"
     [ "$dir" != / ] && \
       dest+="$dir"
+
     [ "$DRY_RUN"  ] || \
       mkdir -p "$dest"
     dest="root$src"
   else
     [ "$DRY_RUN"  ] || {
-    [ "$dir" != . ] && \
-      mkdir -p "$dir"
+      [ "$dir" != . ] && \
+        mkdir -p "$dir"
     }
     dest="$src"
     src="$HOME/$src"
@@ -211,27 +216,63 @@ prepare_dest() {
   echo "$src|$dest"
 }
 
+# usage: is_unchanged <src-path> <dest-path>
+# decodes <dest-path> if has .age extension
+is_unchanged() {
+  local src="$1" dest="$2"
+  [ -f "$dest" ] || return
+
+  if [[ "$dest" == *.age ]]; then
+    cmp -s "$src"  <(age -d -i "$AGE_KEY_FILE" "$dest" 2> /dev/null)
+  else
+    cmp -s "$src" "$dest"
+  fi
+}
+
 # show appropriate actions taken based on DRY_RUN option
 [ "$DRY_RUN" ] && writing="DRY-RUN" || writing="WRITING"
 [ "$DRY_RUN" ] && copied="Would copy" || copied="Copied"
 
 (( ${#regular[@]} )) && echo
+reg_copied=0
+
 for path in "${regular[@]}"; do
   IFS='|' read -r src dest < <(prepare_dest "$path")
-  echo -e "${LTBLUE}$writing: ${WHITE}$dest${NOCLR}"
-  [ "$DRY_RUN" ] || cp -Pp "$src" "$dest" || exit
+
+  is_unchanged "$src" "$dest" && skip=1 || unset skip
+  [ "$skip" ] && color="GRAY" || color="WHITE"
+  echo -e "${LTBLUE}$writing: ${!color}$dest${NOCLR}"
+
+  [ "$skip" ] && continue
+  (( reg_copied++ ))
+  [ "$DRY_RUN" ]  || \
+    cp -Pp "$src" "$dest" || exit
 done
 
 (( ${#encrypted[@]} )) && echo
+enc_copied=0
+
 for path in "${encrypted[@]}"; do
   IFS='|' read -r src dest < <(prepare_dest "$path")
   # encrypt to PEM-encoded format with .age extension
   dest+=".age"
-  echo -e "${LTBLUE}$writing: ${WHITE}$dest${NOCLR}"
-  args=(--identity "$AGE_KEY_FILE" --armor -o "$dest")
-  [ "$DRY_RUN" ] || age -e "${args[@]}" < "$src" || exit
+
+  is_unchanged "$src" "$dest" && skip=1 || unset skip
+  [ "$skip" ] && color="GRAY" || color="WHITE"
+  echo -e "${LTBLUE}$writing: ${!color}$dest${NOCLR}"
+
+  [ "$skip" ] && continue
+  (( enc_copied++ ))
+  [ "$DRY_RUN" ]  || {
+    args=(-i "$AGE_KEY_FILE" -a -o "$dest")
+    age -e "${args[@]}" < "$src" || exit
+  }
 done
 
-# ALL DONE! show total file counts
-printf "\n${THUMBUP}${LTGREEN}$copied %d regular file(s) and %d encrypted file(s).${NOCLR}\n" \
-  ${#regular[@]} ${#encrypted[@]}
+# ALL DONE! show number of files actually copied vs their total counts
+fmt="" args=()
+[ $reg_copied -lt ${#regular[@]} ] && fmt+=" %d of" args+=($reg_copied)
+fmt+=" %d regular file(s) and" args+=(${#regular[@]})
+[ $enc_copied -lt ${#encrypted[@]} ] && fmt+=" %d of" args+=($enc_copied)
+fmt+=" %d encrypted file(s)." args+=(${#encrypted[@]})
+printf "\n${THUMBUP}${LTGREEN}${copied}${fmt}${NOCLR}\n" "${args[@]}"
