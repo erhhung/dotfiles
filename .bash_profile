@@ -569,6 +569,11 @@ export    PINK='\033[1;35m'; color_pink()    { echo -e    "${PINK}$*${NOCLR}"; }
 export    CYAN='\033[0;36m'; color_cyan()    { echo -e    "${CYAN}$*${NOCLR}"; }; export -f color_cyan
 export  LTCYAN='\033[1;36m'; color_ltcyan()  { echo -e  "${LTCYAN}$*${NOCLR}"; }; export -f color_ltcyan
 
+# strip ANSI color codes
+no_colors() {
+  sed -E 's/\x1B\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g'
+}
+
 # echo RGB color sequence
 # without text (echo -en)
 rgb_fg() { _rgb $1 $2 $3 fg; }
@@ -737,6 +742,43 @@ _reqfiles() {
       echo >&2 "File not found: ${file/#$HOME/\~}"
       return 1
     fi
+  done
+}
+
+# prompt user to press a single key
+# prompt1 <message> <choices> [default]
+# case of <choices> & <default> ignored
+# returns a char in <choices> in lower
+# allow Enter only if default provided
+# example: prompt1 "\nContinue?" yn N
+#          prompt1 "\nPress any key:"
+prompt1() {
+  local msg keys def key
+  msg="${1%%+([[:space:]])}"
+  keys="${2,,}" def="${3^^}"
+
+  [[ "$keys" || ${#def} -eq 1 ]] || \
+  [[ "$keys" ==  *"${def,,}"* ]] || return
+
+  [ "$msg"  ] && echo >&2 -en "$msg " # output choices: use upper + color to highlight default response
+  [ "$keys" ] && echo >&2 -en "$WHITE[${LTCYAN}${keys/${def,,}/${LTGREEN}${def}${LTCYAN}}$WHITE]$NOCLR "
+
+  while true; do
+    read -rsn 1 key
+    # return nothing if allow any key
+    [ "$keys" ] || return 0
+
+    # ignore key press if not a choice
+    [[ "$key" || "$def" ]] || continue
+    key="${key:-$def}"; key="${key,,}"
+    [[ "$keys" == *"$key"* ]] || continue
+
+    # response accepted! output response in color
+    # to stderr, but return single char on stdout
+    echo >&2 -en "$YELLOW"
+    echo      -n "$key"
+    echo >&2 -e  "$NOCLR"
+    return
   done
 }
 
