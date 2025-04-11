@@ -8,6 +8,9 @@
 ::1             localhost
 255.255.255.255	broadcasthost
 
+192.168.86.24 i9mbp erhhungs-i9-mbp
+192.168.86.25 i7mbp erhhungs-i7-mbp
+
 192.168.2.1       firewall.fourteeners.local firewall
 192.168.0.2      poeswitch.fourteeners.local poeswitch
 192.168.0.3      mbrswitch.fourteeners.local mbrswitch

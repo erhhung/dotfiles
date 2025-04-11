@@ -145,7 +145,7 @@ alias lh='LESSLEXER=properties less +G ~/.bash_history'
 
 _sudo() {
   security find-generic-password -l sudo -w | \
-    command sudo -ESp "" "$@"
+    $(which sudo) -Sp "" "$@"
 }
 alias sudo='sudo -E '
 alias   ss='sudo su'
@@ -247,12 +247,8 @@ alias cdd='cd ~-'
 alias pwd='printf "%q\n" "$(builtin pwd)/"'
 
 # suppress stack output
-pushd() {
-  command pushd "$@" > /dev/null
-}
-popd() {
-  command popd  "$@" > /dev/null
-}
+pushd() { command pushd "$@" > /dev/null; }
+ popd() { command popd  "$@" > /dev/null; }
 
 # https://www.gnu.org/software/coreutils/manual/html_node/Formatting-file-timestamps.html
 export TIME_STYLE='long-iso'
@@ -342,12 +338,13 @@ bup() (
     aws-sdk-cpp # takes >2 hours!
   )
   color_ltcyan "Checking for outdated formulae and casks..."
-  json=$(brew outdated --greedy --json "$@")
+  args=(--json) # args=(--greedy --json)
+  json=$(brew outdated "${args[@]}" "$@")
   date=$(_altcmd gdate date)
 
-  # must invoke `jo -a <<< "" "$@"` in case "$@" is empty
-  formulae=($(jq -r --argjson skip "$(jo -a "${SKIP[@]}")" \
-                    --argjson only "$(jo -a <<< "" "$@")" \
+  # must invoke `jo -a <<< "$@"` in case SKIP/"$@" is empty
+  formulae=($(jq -r --argjson skip "$(jo -a <<< "${SKIP[@]}")" \
+                    --argjson only "$(jo -a <<<       "$@")" \
     '.formulae[] | select( (.pinned | not) and
         ([.name] | inside($skip)    | not) and
        (([.name] | inside($only)) or ($only == []))
@@ -525,10 +522,6 @@ _title() {
 }
 alias tt='_title'
 
-# if a command hides the cursor
-# but exits before restoring it
-alias showcursor='echo -en "\e[?25h"'
-
 alias pbc='pbcopy'
 alias pbp='pbpaste'
 
@@ -542,6 +535,9 @@ _uplns() {
   done
 }
 
+hidecursor() { echo -en "\e[?25l"; }
+showcursor() { echo -en "\e[?25h"; }
+
 # Black        0;30     Dark Gray     1;30
 # Blue         0;34     Light Blue    1;34
 # Green        0;32     Light Green   1;32
@@ -551,6 +547,8 @@ _uplns() {
 # Brown/Orange 0;33     Yellow        1;33
 # Light Gray   0;37     White         1;37
 
+# do not use ANSI-C quoting ($'\033['), or else the "title"
+# function will not be able to strip these escape sequences
 export   NOCLR='\033[0m'
 export   BLACK='\033[0;30m'; color_black()   { echo -e   "${BLACK}$*${NOCLR}"; }; export -f color_black
 export    GRAY='\033[1;30m'; color_gray()    { echo -e    "${GRAY}$*${NOCLR}"; }; export -f color_gray
@@ -569,8 +567,12 @@ export    PINK='\033[1;35m'; color_pink()    { echo -e    "${PINK}$*${NOCLR}"; }
 export    CYAN='\033[0;36m'; color_cyan()    { echo -e    "${CYAN}$*${NOCLR}"; }; export -f color_cyan
 export  LTCYAN='\033[1;36m'; color_ltcyan()  { echo -e  "${LTCYAN}$*${NOCLR}"; }; export -f color_ltcyan
 
+export   THUMBUP=$'\U1F44D'
+export THUMBDOWN=$'\U1F44E'
+export CHECKMARK=$'\u2714'
+
 # strip ANSI color codes
-no_colors() {
+noclrs() {
   sed -E 's/\x1B\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g'
 }
 
@@ -687,9 +689,9 @@ _color16() {
 _altcmd() {
   local cmd
   for cmd in "$@"; do
-    if which -s $cmd 2> /dev/null; then
-      printf $cmd && return
-    fi
+    command -v "$cmd" &> /dev/null || continue
+    printf $cmd
+    return 0
   done
   return 1
 }
@@ -700,10 +702,9 @@ _altcmd() {
 _reqcmds() {
   local cmd
   for cmd in "$@"; do
-    if ! which -s $cmd 2> /dev/null; then
-      echo >&2 "Please install \"$cmd\" first!"
-      return 1
-    fi
+    command -v "$cmd" &> /dev/null && continue
+    echo >&2 "Please install \"$cmd\" first!"
+    return 1
   done
 }
 
@@ -909,6 +910,10 @@ fixperms() (
   shopt -s nullglob; xattr -c . .* *
 )
 
+# helper func for fixdates
+# _fixdates <count> [cols]
+# count: files updated (return value)
+#  cols: current terminal column width
 _fixdates() {
   # ensure  _touch() defined
   _reqfuncs _touch || return
@@ -949,34 +954,47 @@ _fixdates() {
 }
 
 # because I have OCD!
-# usage: fixdates [-r [max-depth]]
-fixdates() {
+# fixdates [-r [max-depth]] [dirs...]
+# dirs: specific dirs only; default .
+fixdates() (
   # ensure  title() defined
-  _reqfuncs title || return
+  _reqfuncs title || exit
 
-  # -r: fix subdirs first
-  if [ "$1" == -r ]; then
-    local args=(. -type d)
-    [ "$2" ] && args+=(-maxdepth $2)
-    local countA dir cols
+  # avoid cursor jumping up & down
+  hidecursor; trap showcursor EXIT
 
-    while read dir; do
-      [ "$dir" == . ] && continue
-      cols=$(tput cols) && echo
-      title "${LTGREEN}${dir:2:$cols-1}${NOCLR}"
-      (
-        cd "$dir"
-        local countB
-        _fixdates countB $cols
-        ((countB)) || _uplns 3
-      )
-    done < <(find "${args[@]}")
-    echo # finally, work on cwd
-    title "${LTGREEN}./${NOCLR}"
-  fi
-  _fixdates countA
-  [[ "$1" == -r && $countA -eq 0 ]] && _uplns 3
-}
+  [ "$1" == -r ] && {
+    find_args=(. -type d -mindepth 1)
+    shift
+    [[ "$1" =~ ^[[:digit:]]+$ ]] && {
+      find_args+=(-maxdepth $1)
+      shift
+    }
+  }
+  dirs=("${1:-.}" "$@:2")
+  for dir in "${dirs[@]}"; do (
+    cd "$dir" || exit
+    [ "$1" ]  && {
+      echo; title "${LTCYAN}${dir%/}${NOCLR}"
+    }
+    if [ "$find_args" ]; then
+      while read subdir; do
+        cols=$(tput cols)
+        echo; title "${LTGREEN}${dir:2:$cols-1}${NOCLR}"
+        (
+          cd "$subdir"
+          local countA
+          _fixdates countA $cols
+          ((countA)) || _uplns 3
+        )
+      done < <(find "${find_args[@]}")
+      echo; title "${LTGREEN}./${NOCLR}"
+    fi
+    local countB
+    _fixdates countB
+    [ "$find_args" ] && ! ((countB)) && _uplns 3
+  ); done
+)
 
 # set current date/time according to google.com
 syncdate() {
@@ -1123,7 +1141,7 @@ whois() {
 
 # functions like traceroute and ping
 # https://github.com/fujiapple852/trippy
-alias trip='trip -c $XDG_CONFIG_HOME/trippy/config.toml'
+alias trip='trip -uc $XDG_CONFIG_HOME/trippy/config.toml'
 
 # see website SSL certificate details
 # sslcert [host=localhost] [port=443]
@@ -1486,7 +1504,7 @@ addflags CPPFLAGS      -I$RUBY_HOME/include
 addflags  LDFLAGS      -L$RUBY_HOME/lib
 
 # Java environment
-export   JAVA_VER=21
+export   JAVA_VER=$(v=$(basename `realpath $HOMEBREW_PREFIX/opt/openjdk`); echo ${v%%.*})
 export   JAVA_HOME="$HOMEBREW_PREFIX/opt/openjdk${JAVA_VER:+@$JAVA_VER}/libexec/openjdk.jdk/Contents/Home"
 export GROOVY_HOME="$HOMEBREW_PREFIX/opt/groovy/libexec"
 export   CLASSPATH="$JAVA_HOME/lib/*"
@@ -1536,7 +1554,7 @@ addflags CPPFLAGS -I$ICU_HOME/include
 addflags  LDFLAGS -L$ICU_HOME/lib
 
 # MacTeX toolset
-addpaths PATH /Library/TeX/texbin
+#addpaths PATH /Library/TeX/texbin
 
 # additional paths
 addpaths --pre PATH $HOMEBREW_PREFIX/opt/curl/bin
@@ -1852,19 +1870,24 @@ dsh() {
 }
 # kubectl run -it --rm bash/sh
 # ksh [image] [opts...]
-# image: uses ECR if prefixed ./
-# default image is "amazonlinux:2"
+# image: uses Harbor if prefixed ./
+# default image is ./al2023-devops
 ksh() {
-  local pod script image=${1:-amazonlinux:2}
+  local image pod script
+
+  image=${1:-./al2023-devops}
+  [[ "$image" == ./* ]] && \
+    image="harbor.fourteeners.local/library/${image:2}"
+
   # decorate pod name with random chars
   # to avoid collision with similar pod
   pod=$(n=10000; printf "%s-temp-admin-%04d" $USER $((RANDOM % n)))
-  [[ "$image" == ./* ]] && image="$(ecrdomain)/${image:2}"
   script="$(__container_shell_init_script)"
 
   kubectl -n default run $pod \
     -l="app=temp-admin" -it --rm "${@:2}" \
-    --quiet --restart=Never --image "$image" \
+    --pod-running-timeout 5m --quiet \
+    --restart=Never --image "$image" \
     --command -- sh -c "$script"
 }
 

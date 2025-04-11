@@ -1,3 +1,7 @@
+# Sample config file for Trippy.
+#
+# Copy this template config file to your platform specific config dir.
+#
 # Trippy will attempt to locate a `trippy.toml` or `.trippy.toml` config file
 # in one of the following locations:
 #   the current directory
@@ -10,12 +14,10 @@
 #
 # All sections and all items within each section are non-mandatory.
 
-
 #
 # General Trippy configuration.
 #
 [trippy]
-
 # The Trippy mode.
 #
 # Allowed values are:
@@ -38,7 +40,7 @@ mode = "tui"
 # Enabling will cause IPPROTO_ICMP sockets to be used.
 #
 # Note: not supported on all platforms.
-unprivileged = true
+unprivileged = false
 
 # How to format log data.
 #
@@ -60,12 +62,10 @@ log-filter = "trippy=debug"
 #  full         - Display all event spans
 log-span-events = "off"
 
-
 #
 # Tracing strategy configuration.
 #
 [strategy]
-
 # The tracing protocol.
 #
 # Allowed values are:
@@ -77,31 +77,31 @@ protocol = "icmp"
 # The address family.
 #
 # Allowed values are:
-#   ipv4            - Lookup Ipv4 only
-#   ipv6            - Lookup Ipv6 only
-#   ipv6-then-ipv4  - Lookup Ipv6 with a fallback to Ipv4
-#   ipv4-then-ipv6  - Lookup Ipv4 with a fallback to Ipv6 [default]
+#   ipv4            - Lookup IPv4 only
+#   ipv6            - Lookup IPv6 only
+#   ipv6-then-ipv4  - Lookup IPv6 with a fallback to IPv4
+#   ipv4-then-ipv6  - Lookup IPv4 with a fallback to IPv6 [default]
 addr-family = "ipv4-then-ipv6"
 
 # The target port (TCP & UDP only) [default: 80]
 #
 # Applicable for TCP and UDP protocols only.
-#target-port = 80
+# target-port = 80
 
 # The source port (TCP & UDP only) [default: auto]
 #
 # Applicable for TCP and UDP protocols only.
-#source-port = 1234
+# source-port = 1234
 
 # The source IP address [default: auto]
 #
 # If unspecified the source address will be chosen automatically based on the tracing target.
-#source-address = "1.2.3.4"
+# source-address = "1.2.3.4"
 
 # The network interface [default: auto]
 #
 # If not specified the interface is chosen based on the source-address.
-#interface = "en0"
+# interface = "en0"
 
 # The minimum duration of every round [default: 1s]
 #
@@ -121,8 +121,8 @@ max-round-duration = "1s"
 # has responded.
 grace-duration = "100ms"
 
-# The initial sequence number [default: 33000]
-initial-sequence = 33000
+# The initial sequence number [default: 33434]
+initial-sequence = 33434
 
 # The Equal-cost Multi-Path routing strategy (UDP only)
 #
@@ -176,12 +176,16 @@ icmp-extensions = false
 # The socket read timeout [default: 10ms]
 read-timeout = "10ms"
 
+# The maximum number of samples to record per hop [default: 256]
+max-samples = 256
+
+# The maximum number of flows to record [default: 64]
+max-flows = 64
 
 #
 # DNS configuration.
 #
 [dns]
-
 # How DNS queries are resolved
 #
 # Allowed values are:
@@ -206,12 +210,13 @@ dns-lookup-as-info = false
 # The maximum time to wait to perform DNS queries [default: 5s]
 dns-timeout = "5s"
 
+# The time-to-live (TTL) for DNS entries [default: 300s]
+dns-ttl = "300s"
 
 #
 # Report generation configuration.
 #
 [report]
-
 # The number of report cycles to run [default: 10]
 #
 # Only applicable for modes pretty, markdown, csv and json.
@@ -221,7 +226,6 @@ report-cycles = 10
 # General Tui Configuration.
 #
 [tui]
-
 # How to render addresses.
 #
 # Allowed values are:
@@ -230,7 +234,7 @@ report-cycles = 10
 #   both - Show both IP address and reverse-lookup DNS hostname
 tui-address-mode = "host"
 
-# How to render AS information.
+# How to render autonomous system (AS) information.
 #
 # Allowed values are:
 #   asn             - Show the ASN [default]
@@ -257,7 +261,7 @@ tui-as-mode = "asn"
 #   d - Stddev
 #   t - Status
 #
-# Also avilable:
+# Also available:
 #
 #   j - Jitter
 #   g - Jitter average
@@ -266,6 +270,13 @@ tui-as-mode = "asn"
 #   Q - Last probe sequence number
 #   S - Last probe source port
 #   P - Last probe destination port
+#   T - Last icmp packet type
+#   C - Last icmp packet code
+#   N - Last NAT status
+#   f - Probes failed
+#   F = Forward loss
+#   B = Backward loss
+#   D = Forward loss %
 #
 # The columns will be shown in the order specified.
 tui-custom-columns = "holsravbwdt"
@@ -284,7 +295,7 @@ tui-icmp-extension-mode = "off"
 #   MaxMind "GeoLite2 City"
 #   IPinfo "IP to Country + ASN Database"
 #   IPinfo "IP to Geolocation Extended Database"
-geoip-mmdb-file = "/usr/local/var/GeoIP/GeoLite2-City.mmdb"
+# geoip-mmdb-file = "/path/to/geoip_file.mmdb"
 
 # How to render GeoIp information.
 #
@@ -295,18 +306,12 @@ geoip-mmdb-file = "/usr/local/var/GeoIP/GeoLite2-City.mmdb"
 #   location - Show latitude and Longitude format GeoIp information
 #
 # Note this value is ignored unless a valid geoip-mmdb-file value is also provided.
-tui-geoip-mode = "short"
+tui-geoip-mode = "off"
 
 # The maximum number of addresses to show per hop [default: auto]
 #
 # Use a zero value for `auto`.
 tui-max-addrs = 0
-
-# The maximum number of samples to record per hop [default: 256]
-tui-max-samples = 256
-
-# The maximum number of flows to show [default: 64]
-tui-max-flows = 64
 
 # Whether to preserve the screen on exit [default: false]
 tui-preserve-screen = false
@@ -314,11 +319,13 @@ tui-preserve-screen = false
 # The Tui refresh rate [default: 100ms]
 tui-refresh-rate = "100ms"
 
-# The maximum ttl of hops which will be masked for privacy [default: 1]
-tui-privacy-max-ttl = 0
+# The maximum ttl of hops which will be masked for privacy [default: none]
+# tui-privacy-max-ttl = 0
 
+# The locale to use for Tui [default: auto]
+# tui-locale = "en-US"
 
-# Tui color theme configure.
+# Tui color theme configuration.
 #
 # The supported ANSI color values are:
 #   Black, Red, Green, Yellow, Blue, Magenta, Cyan, Gray, DarkGray, LightRed,
@@ -333,11 +340,11 @@ tui-privacy-max-ttl = 0
 # See https://github.com/fujiapple852/trippy#theme-reference for details.
 [theme-colors]
 bg-color = "black"
-border-color = "cyan"
+border-color = "gray"
 text-color = "gray"
 tab-text-color = "green"
-hops-table-header-bg-color = "blue"
-hops-table-header-text-color = "white"
+hops-table-header-bg-color = "white"
+hops-table-header-text-color = "black"
 hops-table-row-active-text-color = "gray"
 hops-table-row-inactive-text-color = "darkgray"
 hops-chart-selected-color = "green"
@@ -350,6 +357,7 @@ flows-chart-bar-unselected-color = "darkgray"
 flows-chart-text-current-color = "lightgreen"
 flows-chart-text-non-current-color = "white"
 samples-chart-color = "yellow"
+samples-chart-lost-color = "red"
 help-dialog-bg-color = "blue"
 help-dialog-text-color = "gray"
 settings-dialog-bg-color = "blue"
@@ -363,7 +371,8 @@ map-selected-color = "green"
 map-info-panel-border-color = "gray"
 map-info-panel-bg-color = "black"
 map-info-panel-text-color = "gray"
-
+info-bar-bg-color = "white"
+info-bar-text-color = "black"
 
 # Tui key bindings Configuration.
 #
@@ -375,6 +384,13 @@ map-info-panel-text-color = "gray"
 toggle-help = "h"
 toggle-help-alt = "?"
 toggle-settings = "s"
+toggle-settings-tui = "1"
+toggle-settings-trace = "2"
+toggle-settings-dns = "3"
+toggle-settings-geoip = "4"
+toggle-settings-bindings = "5"
+toggle-settings-theme = "6"
+toggle-settings-columns = "7"
 next-hop = "down"
 previous-hop = "up"
 next-trace = "right"
@@ -388,7 +404,8 @@ toggle-freeze = "ctrl+f"
 toggle-chart = "c"
 toggle-map = "m"
 toggle-flows = "f"
-toggle-privacy = "p"
+expand-privacy = "p"
+contract-privacy = "o"
 expand-hosts = "]"
 expand-hosts-max = "}"
 contract-hosts = "["
@@ -401,3 +418,5 @@ clear-selection = "esc"
 toggle-as-info = "z"
 toggle-hop-details = "d"
 quit = "q"
+quit-preserve-screen = "shift+q"
+
