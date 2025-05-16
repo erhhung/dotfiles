@@ -11,8 +11,8 @@
 #===================================#
 
 # Amazon Q pre block. Keep at the top of this file.
-[[ -f "${HOME}/Library/Application Support/amazon-q/shell/bash_profile.pre.bash" ]] && \
-    . "${HOME}/Library/Application Support/amazon-q/shell/bash_profile.pre.bash"
+[ -f "$HOME/Library/Application Support/amazon-q/shell/bash_profile.pre.bash" ] && \
+   . "$HOME/Library/Application Support/amazon-q/shell/bash_profile.pre.bash"
 
 # https://code.visualstudio.com/docs/terminal/shell-integration#_manual-installation
 # (ignore error from SecCodeCheckValidity issue: https://github.com/microsoft/vscode/issues/204085)
@@ -160,9 +160,13 @@ export EDITOR="$ZED -nw"
 
 export CLICOLOR=1
 export CLICOLOR_FORCE=1
-#export LSCOLORS='ExFxBxDxCxegedabagacad'
+# export LSCOLORS='ExFxBxDxCxegedabagacad'
 . <(gdircolors -b "$HOME/.dircolors")
 export GREP_OPTIONS='--color=auto'
+
+# https://min.io/docs/minio/linux/reference/minio-mc-admin.html
+export MC_CONFIG_DIR="$XDG_CONFIG_HOME/minio"
+export MC_DISABLE_PAGER=1
 
 # https://github.com/dbcli/pgcli
 # brew install pgcli
@@ -333,9 +337,10 @@ bup() (
   # static list of formulae to
   # not upgrade by this script
   SKIP=(
-    aws-c-auth  # long cleanup
-    aws-crt-cpp # long deps check
-    aws-sdk-cpp # takes >2 hours!
+    aws-c-auth   # long cleanup
+    aws-crt-cpp  # long deps check
+    aws-sdk-cpp  # takes >2 hours!
+    apache-arrow # dep aws-sdk-cpp
   )
   color_ltcyan "Checking for outdated formulae and casks..."
   args=(--json) # args=(--greedy --json)
@@ -525,13 +530,18 @@ alias tt='_title'
 alias pbc='pbcopy'
 alias pbp='pbpaste'
 
-# move cursor up n lines
-# while clearing n lines
+# move cursor up n lines while
+# optionally erasing each line
+# _uplns [-k] <n>
+#   -k: do NOT erase each line
 _uplns() {
+  local s="\x1B[1A" # move up
+  [ "$1" == -k ] && shift || \
+    s+="\x1B[0K" # erase line
+
   local n=${1:-0}
   while [ $n -gt 0 ]; do
-    echo -ne "\033[1A\033[0K"
-    ((n--))
+    echo -ne "$s"; ((n--))
   done
 }
 
@@ -549,23 +559,23 @@ showcursor() { echo -en "\e[?25h"; }
 
 # do not use ANSI-C quoting ($'\033['), or else the "title"
 # function will not be able to strip these escape sequences
-export   NOCLR='\033[0m'
-export   BLACK='\033[0;30m'; color_black()   { echo -e   "${BLACK}$*${NOCLR}"; }; export -f color_black
-export    GRAY='\033[1;30m'; color_gray()    { echo -e    "${GRAY}$*${NOCLR}"; }; export -f color_gray
-export  LTGRAY='\033[0;37m'; color_ltgray()  { echo -e  "${LTGRAY}$*${NOCLR}"; }; export -f color_ltgray
-export   WHITE='\033[1;37m'; color_white()   { echo -e   "${WHITE}$*${NOCLR}"; }; export -f color_white
-export     RED='\033[0;31m'; color_red()     { echo -e     "${RED}$*${NOCLR}"; }; export -f color_red
-export  ORANGE='\033[1;31m'; color_orange()  { echo -e  "${ORANGE}$*${NOCLR}"; }; export -f color_orange
-export   GREEN='\033[0;32m'; color_green()   { echo -e   "${GREEN}$*${NOCLR}"; }; export -f color_green
-export LTGREEN='\033[1;32m'; color_ltgreen() { echo -e "${LTGREEN}$*${NOCLR}"; }; export -f color_ltgreen
-export   OCHRE='\033[0;33m'; color_ochre()   { echo -e   "${OCHRE}$*${NOCLR}"; }; export -f color_ochre
-export  YELLOW='\033[1;33m'; color_yellow()  { echo -e  "${YELLOW}$*${NOCLR}"; }; export -f color_yellow
-export    BLUE='\033[0;34m'; color_blue()    { echo -e    "${BLUE}$*${NOCLR}"; }; export -f color_blue
-export  LTBLUE='\033[1;34m'; color_ltblue()  { echo -e  "${LTBLUE}$*${NOCLR}"; }; export -f color_ltblue
-export MAGENTA='\033[0;35m'; color_magenta() { echo -e "${MAGENTA}$*${NOCLR}"; }; export -f color_magenta
-export    PINK='\033[1;35m'; color_pink()    { echo -e    "${PINK}$*${NOCLR}"; }; export -f color_pink
-export    CYAN='\033[0;36m'; color_cyan()    { echo -e    "${CYAN}$*${NOCLR}"; }; export -f color_cyan
-export  LTCYAN='\033[1;36m'; color_ltcyan()  { echo -e  "${LTCYAN}$*${NOCLR}"; }; export -f color_ltcyan
+export   NOCLR='\x1B[0m'
+export   BLACK='\x1B[0;30m'; color_black()   { echo -e   "${BLACK}$*${NOCLR}"; }; export -f color_black
+export    GRAY='\x1B[1;30m'; color_gray()    { echo -e    "${GRAY}$*${NOCLR}"; }; export -f color_gray
+export  LTGRAY='\x1B[0;37m'; color_ltgray()  { echo -e  "${LTGRAY}$*${NOCLR}"; }; export -f color_ltgray
+export   WHITE='\x1B[1;37m'; color_white()   { echo -e   "${WHITE}$*${NOCLR}"; }; export -f color_white
+export     RED='\x1B[0;31m'; color_red()     { echo -e     "${RED}$*${NOCLR}"; }; export -f color_red
+export  ORANGE='\x1B[1;31m'; color_orange()  { echo -e  "${ORANGE}$*${NOCLR}"; }; export -f color_orange
+export   GREEN='\x1B[0;32m'; color_green()   { echo -e   "${GREEN}$*${NOCLR}"; }; export -f color_green
+export LTGREEN='\x1B[1;32m'; color_ltgreen() { echo -e "${LTGREEN}$*${NOCLR}"; }; export -f color_ltgreen
+export   OCHRE='\x1B[0;33m'; color_ochre()   { echo -e   "${OCHRE}$*${NOCLR}"; }; export -f color_ochre
+export  YELLOW='\x1B[1;33m'; color_yellow()  { echo -e  "${YELLOW}$*${NOCLR}"; }; export -f color_yellow
+export    BLUE='\x1B[0;34m'; color_blue()    { echo -e    "${BLUE}$*${NOCLR}"; }; export -f color_blue
+export  LTBLUE='\x1B[1;34m'; color_ltblue()  { echo -e  "${LTBLUE}$*${NOCLR}"; }; export -f color_ltblue
+export MAGENTA='\x1B[0;35m'; color_magenta() { echo -e "${MAGENTA}$*${NOCLR}"; }; export -f color_magenta
+export    PINK='\x1B[1;35m'; color_pink()    { echo -e    "${PINK}$*${NOCLR}"; }; export -f color_pink
+export    CYAN='\x1B[0;36m'; color_cyan()    { echo -e    "${CYAN}$*${NOCLR}"; }; export -f color_cyan
+export  LTCYAN='\x1B[1;36m'; color_ltcyan()  { echo -e  "${LTCYAN}$*${NOCLR}"; }; export -f color_ltcyan
 
 export   THUMBUP=$'\U1F44D'
 export THUMBDOWN=$'\U1F44E'
@@ -573,7 +583,7 @@ export CHECKMARK=$'\u2714'
 
 # strip ANSI color codes
 noclrs() {
-  sed -E 's/\x1B\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g'
+  sed -E 's/(\x1B|\\x1B|\033|\\033)\[([0-9]{1,3}(;[0-9]{1,2})?)?[mGK]//g'
 }
 
 # echo RGB color sequence
@@ -786,10 +796,18 @@ prompt1() {
 # print given title with
 # another line of dashes
 title() {
-  echo -e "$*"
+  local s="$*" d l t
+  echo -e "$s"
+
   # use PCRE (*SKIP)(*F) trick to preserve ANSI
   # color codes while replacing all other chars
-  echo -e "$(perl -pe 's/(?:\\033\[[0-9;]*[mGKHF])(*SKIP)(*F)|./-/g' <<< "$*")"
+  d="$(perl -pe 's/(?:\\(033|x1B)\[[0-9;]*[mGKHF])(*SKIP)(*F)|./-/g' <<< "$s")"
+
+  #  remove  leading and trailing dashes
+  # matching leading and trailing spaces
+  l="${s%%[^[:space:]]*}" #  leading spaces
+  t="${s##*[^[:space:]]}" # trailing spaces
+  echo -e "$l${d:${#l}:${#d}-${#l}-${#t}}$t"
 }
 
 # right-justify lines
@@ -812,28 +830,33 @@ _maxwidth() {
 # get max widths of
 # one-word  columns
 _colwidths() {
-  awk '{for (i=1; i<=NF; i++) {l=length($i); if (l>L[i]) L[i]=l;}} END \
-       {for (i=1; i<=length(L); i++) {printf L[i] "\n";}}'
+  noclrs | \
+     awk '{for (i=1; i<=NF; i++) {l=length($i); if (l>L[i]) L[i]=l;}} END \
+          {for (i=1; i<=length(L); i++) {printf L[i] "\n";}}'
 }
 
 # format one-word columns
 # with each left-justified
 cols() {
-  local w n i table=$(cat)
-  [ "$table" ] || return 0
+  local w seq tbl=$(cat)
+  [ "$tbl" ] || return 0
 
-  w=($(_colwidths <<< "$table"))
-  (( n = ${#w[@]} - 2 ))
+  w=($(_colwidths <<< "$tbl"))
+  ((seq = ${#w[@]} - 2))
+  seq=($(seq 0 $seq))
 
-  local cols fmt=""
-  for i in $(seq 0 $n); do
-    # %b allows \xNN chars
-    fmt+="%-${w[$i]}b  "
-  done
+  local vals
+  while read -ra vals; do
+    local i val pad out=""
+    for i in ${seq[@]}; do
 
-  while read -ra cols; do
-    printf "$fmt%b\n" "${cols[@]}"
-  done <<< "$table"
+      val="$(noclrs <<< "${vals[$i]}")"
+      ((pad = ${w[i]} - ${#val}))
+      printf -v pad "%${pad}s" ""
+      out+="${vals[$i]}$pad  "
+    done
+    echo -e "$out${vals[-1]}"
+  done  <<< "$tbl"
 }
 
 # convert x.y.z version to 9-digit number for comparison
@@ -971,21 +994,26 @@ fixdates() (
       shift
     }
   }
-  dirs=("${1:-.}" "$@:2")
+  dirs=("${1:-.}" "${@:2}")
   for dir in "${dirs[@]}"; do (
-    cd "$dir" || exit
-    [ "$1" ]  && {
+    builtin cd "$dir" || exit
+    [ "$1" ] && {
       echo; title "${LTCYAN}${dir%/}${NOCLR}"
     }
     if [ "$find_args" ]; then
       while read subdir; do
         cols=$(tput cols)
-        echo; title "${LTGREEN}${dir:2:$cols-1}${NOCLR}"
+        # mask contains all spaces
+        printf -v mask '%*s' $cols
+
+        text="${subdir:2:$cols}"
+        blank="${mask:${#text}}"
+        echo; title "${LTGREEN}$text${NOCLR}$blank"
         (
-          cd "$subdir"
-          local countA
+           local countA
+           builtin  cd "$subdir"
           _fixdates countA $cols
-          ((countA)) || _uplns 3
+          ((countA)) || _uplns -k 3
         )
       done < <(find "${find_args[@]}")
       echo; title "${LTGREEN}./${NOCLR}"
@@ -1063,19 +1091,24 @@ listening() {
         }' | sort -n | uniq | cols
 }
 
-# check TCP port connection
+# check TCP port connectivity
 # usage: port <port> [host]
 # default host is localhost
 port() {
-  if [ -z "$1" ]; then
-    echo 'Check TCP port connection'
-    echo 'Usage: port <port> [host]'
-    echo 'Default host is localhost'
-    return
-  fi
+  [ "$1" ] || {
+    cat <<EOT
+
+Check TCP port connectivity
+Usage: port <port> [host]
+Default host is localhost
+
+EOT
+    return 0
+  }
   local port=$1 host=${2:-localhost}
-  if [ ${port-0} -eq ${port-1} 2> /dev/null ]; then
-    nc -zv -w1 $host $port 2>&1 | head -n1
+  if [ "${port-0}" -eq "${port-1}" ] 2> /dev/null; then
+    # on Linux: head -n2 | tail -n1 | colrm 1 6
+    nc -zv -w1 "$host" "$port" 2>&1 | head -n1
   else
     echo >&2 "Invalid port!"
     return 1
@@ -1124,7 +1157,7 @@ whois() {
   host=${host:-whois.internic.net}
   port=${port:-43}
 
-  if ! [ ${port-0} -eq ${port-1} 2> /dev/null ]; then
+  if ! [ ${port-0} -eq ${port-1}] 2> /dev/null; then
     echo >&2 "Invalid port!"
     return 1
   fi
@@ -1143,21 +1176,103 @@ whois() {
 # https://github.com/fujiapple852/trippy
 alias trip='trip -uc $XDG_CONFIG_HOME/trippy/config.toml'
 
-# see website SSL certificate details
-# sslcert [host=localhost] [port=443]
-sslcert() {
-  local host=${1:-localhost} port=${2:-443}
-  local proxy=$([ "$http_proxy" ] && echo \
-      "-proxy $(cut -d/ -f3- <<< $http_proxy)")
+# show details of certificate chain from
+# stdin or from PEM file or from website
+cert() {
+  local stdin host port args
+  if [ -p /dev/stdin ]; then
+    stdin=$(cat)
+  else
+    [ "$1" ] || {
+      cat <<EOT
 
-  if [ ${host-0} -eq ${host-1} 2> /dev/null ]; then
-    port=$host; host=localhost
+Show details of certificate chain from
+stdin or from PEM file or from website
+
+Usage: cert [file | host=. [port=443]]
+All args ignored if stdin is available
+
+cert < website.pem      # standard input
+cert   website.pem      # local PEM file
+cert   website.com      # website.com:443
+cert   website.com:8443 # website.com:8443
+cert   8443             # localhost:8443
+cert   .                # localhost:443
+EOT
+      return 0
+    }
+    host=${1:-localhost}
+    [ "$host" == . ] && host=localhost
+    # strip scheme & path if is an URL
+    host=${host#*://}; host=${host%%/*}
+    port=${2:-443}
+
+    # handle host:port syntax
+    [[ "$host" == *:* ]] && {
+      port=${host#*:}
+      host=${host%%:*}
+    }
+    # handle if only port number given
+    if [ "${host-0}" -eq "${host-1}" ] 2> /dev/null; then
+      port=$host
+      host=localhost
+    fi
+    # use proxy for s_client if needed
+    [ "$http_proxy" ] && args+=(-proxy
+      $(cut -d/ -f3- <<< "$http_proxy")
+    )
   fi
 
-  openssl s_client $proxy \
-    -connect $host:$port \
-    -showcerts <<< '' 2> /dev/null
-  # | openssl x509 -inform pem -noout -text
+  local cert="" line
+  while read -r line; do
+    # concatenate lines in each cert block
+    # until ";" delimiter from awk command
+    if [ "$line" == ';' ]; then
+      echo; echo -n "$cert" | \
+        openssl x509 -text -inform pem -noout
+      cert=""
+    else
+      cert+="$line"$'\n'
+    fi
+  done < <(
+    if [ "$stdin" ]; then
+      # certs from stdin
+      echo "$stdin"
+    elif [ -f "$host" ]; then
+      # certs from file
+      cat "$host"
+    else
+      # certs from host
+      args=(
+        s_client "${args[@]}"
+        -connect "$host:$port"
+        -showcerts
+      )
+      openssl "${args[@]}" <<< ""
+    fi 2> /dev/null | \
+      awk '
+      /-----BEGIN CERTIFICATE-----/,
+        /-----END CERTIFICATE-----/
+      ' | \
+      awk 'BEGIN {
+        cert=""
+        }
+        /-----BEGIN CERTIFICATE-----/ {
+          cert=$0
+          next
+        }
+        /-----END CERTIFICATE-----/ {
+          # output ";" as delimiter
+          # between each cert block
+          cert=cert"\n"$0"\n;"
+          print cert
+          cert=""
+          next
+        } {
+          cert=cert"\n"$0
+        }'
+  )
+  echo
 }
 
 # show disk usage (use du0/du1 aliases)
@@ -1522,6 +1637,7 @@ venv() {
   { [ -f ./"$dir"/bin/activate ] || python3 -m venv "$dir"; } \
     && . ./"$dir"/bin/activate
 }
+alias python='python3'
 alias p3='python3'
 
 # Node.js environment
@@ -1567,7 +1683,8 @@ export FILTER_BRANCH_SQUELCH_WARNING=1
 
 export STEPPATH="$XDG_CONFIG_HOME/step"
 
-export ANSIBLE_CONFIG="$XDG_CONFIG_HOME/ansible/ansible.cfg"
+# keep ANSIBLE_CONFIG override on reload
+export ANSIBLE_CONFIG="${ANSIBLE_CONFIG:-$XDG_CONFIG_HOME/ansible/ansible.cfg}"
 # make ansible-playbook output YAML
 export ANSIBLE_STDOUT_CALLBACK=yaml
 
@@ -1851,22 +1968,25 @@ alias ls="ls --color=auto"
 alias ll="ls -alF"
 alias lt="ll -tr"
 alias l=less
+# load Bash dot files if provided by container
+[ -f $HOME/.bash_profile ] && . $HOME/.bash_profile
+[ -f $HOME/.bash_aliases ] && . $HOME/.bash_aliases
 EOF
 EOT
   cat <<EOT
 $@ # run any additional commands
-(hash bash 2> /dev/null) && exec bash --rcfile ~/.profile -l \
-                         || exec   sh -l
+(hash bash 2> /dev/null) && exec bash --rcfile ~/.profile || exec sh -l
 EOT
 }
 
 # docker run -it --rm bash/sh
 # dsh <image> [opts...]
 dsh() {
-  local image=${1:-busybox}
+  local host image=${1:-busybox}
+  host=${image##*/}; host=${host%:*}
   # must pass $cmd to drun() as a single argument!
-  local cmd="-c '`__container_shell_init_script`'"
-  drun "$image" --rm "${@:2}" --entrypoint sh "$cmd"
+  local cmd="sh -c '`__container_shell_init_script`'"
+  drun "$image" "$cmd" --rm --hostname $host "${@:2}"
 }
 # kubectl run -it --rm bash/sh
 # ksh [image] [opts...]
@@ -1950,15 +2070,22 @@ kexec() {
 knodes() {
   # ensure kubectl installed
   _reqcmds kubectl || return
-
-  kubectl get nodes --sort-by=".metadata.creationTimestamp" | \
-    awk 'NR==1 {
-      # save but not print first line
-      header=$1" "$2" "$5" "$4; next;
-    };  { print $1" "$2" "$5" "$4; };
-    END { print header; }' | \
-    tac | sed -E 's/ip-([0-9]+)-([0-9]+)-([0-9]+)-([0-9]+)[^ ]+/\1.\2.\3.\4/' | \
-    cols
+  {
+    echo "${WHITE}NAME${NOCLR} ${WHITE}IP${NOCLR} ${WHITE}STATUS${NOCLR} ${WHITE}AGE${NOCLR} ${WHITE}VERSION${NOCLR}"
+    kubectl get nodes -o json | jq -r '.items[] | {
+      name:    .metadata.name,
+      ip:     (.status.addresses[]  | select(.type=="InternalIP").address),
+      status: (.status.conditions[] | select(.type=="Ready").type),
+      age:     .metadata.creationTimestamp,
+      version: .status.nodeInfo.kubeletVersion
+    } | [
+      .name,
+      .ip,
+      .status,
+      (.age | fromdateiso8601 | now - . | floor | . / 86400 | floor | tostring + "d"),
+      .version
+    ] | @tsv'
+  }   | cols
 }
 
 # list pods running on a K8s node
@@ -2552,40 +2679,46 @@ ecrlatest() {
   done
 }
 
-# sum size values with units from stdin
+# sum (size) values (with units) from stdin (values
+# are separated by white space, including newlines)
 # usage: sum [unit|1]
-#        show sum value without unit if given
+#        show total without unit if given 1;
 #        otherwise show with auto iec-i unit
 #  e.g.: sum Gi <<< "250Mi 50Gi 1.5Ti 1024"
+#        sum  1 <<< "$10 $24.99 $125.44"
 sum() {
   # ensure numfmt installed
   _reqcmds numfmt || return
 
-  local total size sizes=(`cat`)
+  local tot cur val vals=(`cat`)
   local u1 u2 unit usys args
 
-  for size in ${sizes[@]}; do
-    # separate value and unit
-    [[ $size =~ ^([-0-9.]+)([A-Za-z]*)$ ]]
-    # below handles spaces surrounding size and unit, but each value must be on one line
-    # [[ $size =~ ^[[:blank:]]*([-[:digit:].]+)[[:blank:]]*([[:alpha:]]*)[[:blank:]]*$ ]]
-    size=${BASH_REMATCH[1]}
-    unit=${BASH_REMATCH[2]}
+  for val in ${vals[@]}; do
+    # separate value & unit
+    [[ $val =~ ^([$]?)([-0-9.]+)([A-Za-z]*)$ ]]
 
-    [ "$size" ] || continue
-    if [ -z "$unit" ]; then
-      total=$(bc <<< "0$total + 0$size")
+    # below handles spaces surrounding size and unit, but each value must be on one line
+    # [[ $val =~ ^[[:blank:]]*([-[:digit:].]+)[[:blank:]]*([[:alpha:]]*)[[:blank:]]*$ ]]
+     cur=${BASH_REMATCH[1]} # currency symbol
+     val=${BASH_REMATCH[2]} # numeric  value
+    unit=${BASH_REMATCH[3]}
+
+    [ "$cur"  ] && set -- 1 # show total without unit
+    [ "$val"  ] || continue
+    [ "$unit" ] || {
+      tot=$(bc <<< "0$tot + 0$val")
       continue
-    fi
+    }
     case ${unit,,} in
        k|m|g|t|p|e|1|'') usys=si    ;;
       ki|mi|gi|ti|pi|ei) usys=iec-i ;;
       *) echo >&2 "Invalid unit: $unit"
          return 1
     esac
+
     u1=${unit:0:1} u2=${unit:1:1} unit=${u1^^}${u2,,}
-    args=(--from $usys --to-unit 1 $size$unit)
-    total=$(bc <<< "0$total + 0$(numfmt "${args[@]}")")
+    args=(--from  $usys --to-unit 1  ${val}${unit})
+    tot=$(bc <<< "0$tot + 0$(numfmt "${args[@]}")")
   done
 
   if [ "$1" ]; then
@@ -2596,7 +2729,7 @@ sum() {
     # show size and unit based on value
     args=(--to iec-i)
   fi
-  numfmt "${args[@]}" --round nearest $total
+  numfmt "${args[@]}" --round nearest $tot
 }
 
 # see also "blist" command in /usr/local/bin:
@@ -2742,7 +2875,8 @@ emptyb() (
 )
 
 # https://iredis.xbin.io/
-alias redis='iredis --no-greetings --rainbow --newbie'
+alias redis='iredis --iredisrc $XDG_CONFIG_HOME/iredis/iredisrc'
+export IREDIS_DSN="homelab"
 
 # brew install qalculate-qt
 qc() {
@@ -2811,6 +2945,11 @@ for cmd in lx lx0 lx1 lx2; do
   complete -o dirnames -f -X '!*.xml' $cmd
 done
 
+# mc: MinIO client
+[ -f /usr/local/bin/mc ] && \
+  complete -C /usr/local/bin/mc mc
+
+# odo: quick K8s deploy
 [ -f /usr/local/bin/odo ] && \
   complete -C /usr/local/bin/odo odo
 
@@ -2820,10 +2959,9 @@ done
 [ -f /usr/local/bin/terraform ] && \
   complete -C /usr/local/bin/terraform terraform tf
 
-# >>>> Vagrant command completion (start)
 [ -f /usr/local/bin/vagrant ] && \
-  . /opt/vagrant/embedded/gems/gems/vagrant-*/contrib/bash/completion.sh
-# <<<<  Vagrant command completion (end)
+[ -f /opt/vagrant/embedded/gems/gems/vagrant-*/contrib/bash/completion.sh ] && \
+   . /opt/vagrant/embedded/gems/gems/vagrant-*/contrib/bash/completion.sh
 
 . <(register-python-argcomplete ansible)
 . <(register-python-argcomplete ansible-config)
@@ -2866,6 +3004,7 @@ complete -o default -F __start_kubectl k
  . <(argocd    completion bash)
 #. <(argo      completion bash)
  . <(node    --completion-bash)
+ . <(harbor    completion bash)
 #. <(confluent completion bash)
  . <(nsc       completion bash)
  . <(nats    --completion-script-bash)
@@ -2877,8 +3016,8 @@ complete -o default -F __start_kubectl k
 # for alias completions
 
 # Amazon Q post block. Keep at the bottom of this file.
-[[ -f "${HOME}/Library/Application Support/amazon-q/shell/bash_profile.post.bash" ]] && \
-    . "${HOME}/Library/Application Support/amazon-q/shell/bash_profile.post.bash"
+[ -f "$HOME/Library/Application Support/amazon-q/shell/bash_profile.post.bash" ] && \
+   . "$HOME/Library/Application Support/amazon-q/shell/bash_profile.post.bash"
 
 #================================#
 # End of .bash_profile for macOS #

@@ -35,7 +35,9 @@ lsr = remote -v
 # list local branches
 lsb = !git branch --no-color | colrm 1 2
 # list remote branches
-lsrb = !git ls-remote --heads origin | colrm 1 59
+lsrb = "!f() { \
+  git ls-remote --heads ${1:-origin} | colrm 1 59; \
+}; f"
 # remove local branch
 rmb = branch -d
 # remove remote branch

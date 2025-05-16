@@ -55,6 +55,7 @@
  .config/helm/sortrepos.sh
  .config/homebrew/brew.env
  .config/htop/htoprc
+|.config/iredis/iredisrc
  .config/iterm2/*-profiles-*.json
  .config/k9s/*.yaml
  .config/k9s/skins/*-erhhung.yaml
