@@ -12,11 +12,12 @@
 
 # Amazon Q pre block. Keep at the top of this file.
 [ -f "$HOME/Library/Application Support/amazon-q/shell/bash_profile.pre.bash" ] && \
-   . "$HOME/Library/Application Support/amazon-q/shell/bash_profile.pre.bash"
+   . "$HOME/Library/Application Support/amazon-q/shell/bash_profile.pre.bash" &> /dev/null
 
 # https://code.visualstudio.com/docs/terminal/shell-integration#_manual-installation
 # (ignore error from SecCodeCheckValidity issue: https://github.com/microsoft/vscode/issues/204085)
-[[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path bash 2> /dev/null)"
+[[ "$TERM_PROGRAM" == "vscode" ]] && \
+   . "$(code --locate-shell-integration-path bash 2> /dev/null)" &> /dev/null
 
 # suppress zsh message in Catalina
 BASH_SILENCE_DEPRECATION_WARNING=1
@@ -88,12 +89,13 @@ export _ZO_DOCTOR=0
 
 # https://github.com/jandedobbeleer/oh-my-posh
 # https://ohmyposh.dev/docs/installation/macos
-# See available On-My-Posh themes:
-# https://ohmyposh.dev/docs/themes
-OMP_THEME="$XDG_CONFIG_HOME/oh-my-posh/erhhung.omp.yaml"
-#OMP_THEME="$XDG_CONFIG_HOME/oh-my-posh/hunk.omp.yaml"
-. <(oh-my-posh init bash --config $OMP_THEME)
-alias omp='oh-my-posh'
+[ "$POSH_SESSION_ID" ] || {
+  # See available On-My-Posh themes:
+  # https://ohmyposh.dev/docs/themes
+  OMP_THEME="$XDG_CONFIG_HOME/oh-my-posh/erhhung.omp.yaml"
+  . <(oh-my-posh init bash --config $OMP_THEME)
+  alias omp='oh-my-posh'
+}
 
 # https://github.com/b-ryan/powerline-shell
 # activate powerline prompt
@@ -987,12 +989,16 @@ fixdates() (
   hidecursor; trap showcursor EXIT
 
   [ "$1" == -r ] && {
-    find_args=(. -type d -mindepth 1)
-    shift
-    [[ "$1" =~ ^[[:digit:]]+$ ]] && {
-      find_args+=(-maxdepth $1)
+    # -mindepth and -maxdepth
+    #  must come before -type
+    find_args=(. -mindepth 1)
+
+    [[ "$2" =~ ^[[:digit:]]+$ ]] && {
+      find_args+=(-maxdepth $2)
       shift
     }
+    find_args+=(-type d)
+    shift
   }
   dirs=("${1:-.}" "${@:2}")
   for dir in "${dirs[@]}"; do (
@@ -1177,9 +1183,11 @@ whois() {
 alias trip='trip -uc $XDG_CONFIG_HOME/trippy/config.toml'
 
 # show details of certificate chain from
-# stdin or from PEM file or from website
+# stdin, PEM file, website or K8s secret
 cert() {
+  _reqcmds openssl || return
   local stdin host port args
+
   if [ -p /dev/stdin ]; then
     stdin=$(cat)
   else
@@ -1187,49 +1195,64 @@ cert() {
       cat <<EOT
 
 Show details of certificate chain from
-stdin or from PEM file or from website
+stdin, PEM file, website or K8s secret
 
 Usage: cert [file | host=. [port=443]]
+       cert -k [namespace/]<tls-secret>
 All args ignored if stdin is available
 
-cert < website.pem      # standard input
-cert   website.pem      # local PEM file
-cert   website.com      # website.com:443
-cert   website.com:8443 # website.com:8443
-cert   8443             # localhost:8443
-cert   .                # localhost:443
+cert < website.pem       # standard input
+cert   website.pem       # local PEM file
+cert   website.com       # website.com:443
+cert   website.com:8443  # website.com:8443
+cert   8443              # localhost:8443
+cert   .                 # localhost:443
+cert -k namespace/secret # K8s "tls.crt"
 EOT
       return 0
     }
-    host=${1:-localhost}
-    [ "$host" == . ] && host=localhost
-    # strip scheme & path if is an URL
-    host=${host#*://}; host=${host%%/*}
-    port=${2:-443}
+    # certs from K8s secret
+    if [ "$1" == -k ]; then
+      _reqcmds kubectl || return
+      local secret=$2
 
-    # handle host:port syntax
-    [[ "$host" == *:* ]] && {
-      port=${host#*:}
-      host=${host%%:*}
-    }
-    # handle if only port number given
-    if [ "${host-0}" -eq "${host-1}" ] 2> /dev/null; then
-      port=$host
-      host=localhost
+      [[ "$secret" == */* ]] && {
+        args+=(-n ${secret%/*})
+        secret=${secret#*/}
+      }
+      stdin=$(kubectl get secret $secret "${args[@]}" \
+        -o jsonpath='{ .data.tls\.crt }' | base64 -d)
+    else
+      host=${1:-localhost}
+      [ "$host" == . ] && host=localhost
+      # strip scheme & path if is an URL
+      host=${host#*://}; host=${host%%/*}
+      port=${2:-443}
+
+      # handle host:port syntax
+      [[ "$host" == *:* ]] && {
+        port=${host#*:}
+        host=${host%%:*}
+      }
+      # handle if only port number given
+      if [ "${host-0}" -eq "${host-1}" ] 2> /dev/null; then
+        port=$host
+        host=localhost
+      fi
+      # use proxy for s_client if needed
+      [ "$http_proxy" ] && args+=(-proxy
+        $(cut -d/ -f3- <<< "$http_proxy")
+      )
     fi
-    # use proxy for s_client if needed
-    [ "$http_proxy" ] && args+=(-proxy
-      $(cut -d/ -f3- <<< "$http_proxy")
-    )
   fi
 
-  local cert="" line
+  local cert="" line out
   while read -r line; do
     # concatenate lines in each cert block
     # until ";" delimiter from awk command
     if [ "$line" == ';' ]; then
-      echo; echo -n "$cert" | \
-        openssl x509 -text -inform pem -noout
+      out=$(openssl x509 -text -inform pem -noout <<< "$cert")
+      [ "$out" ] && echo -e "\n$out"
       cert=""
     else
       cert+="$line"$'\n'
@@ -1272,7 +1295,7 @@ EOT
           cert=cert"\n"$0
         }'
   )
-  echo
+  [ "$POSH_THEME" ] || [ "out" ] && echo
 }
 
 # show disk usage (use du0/du1 aliases)
@@ -1533,14 +1556,17 @@ _urldecode() {
   local url path query param
   (($#)) && url="$@" || url=$(cat)
 
-  read path query < <(tr \? ' ' <<< "$url")
-  echo -e "$LTGREEN$path$NOCLR"
-
-  eval "echo -e \"$(
-    while read param; do urldecode "$param"
-    done < <(sed 's/&/\n/g' <<< "$query") | \
-    sed -E 's/^([^=]+)=(.*)$/${LTBLUE}\1$WHITE = ${NOCLR}\2/'
-  )\""
+  if [[ "$url" == *\?* ]]; then
+    read path query < <(tr \? ' ' <<< "$url")
+    printf "$LTGREEN%s$NOCLR\n" "$path"
+  fi
+  while read param value; do
+    printf "$LTBLUE%s$WHITE = $NOCLR%s\n" \
+           "$(urldecode "$param")" \
+           "$(urldecode "$value")"
+  done < <(
+    tr \& $'\n' <<< "${query:-$url}" | tr = ' '
+  )
 }
 
 alias ue='urlencode '
@@ -1639,6 +1665,9 @@ venv() {
 }
 alias python='python3'
 alias p3='python3'
+
+# https://requests.readthedocs.io/en/latest/user/advanced/#ssl-cert-verification
+export REQUESTS_CA_BUNDLE="$HOME/certs/fourteeners_ca_chain.pem"
 
 # Node.js environment
 export NODE_OPTIONS="--experimental-repl-await"
@@ -1936,9 +1965,9 @@ drun() {
     return 1
   fi
   if [[ "$cmd" == -* ]]; then
-    cmd=''; opts=( "$@" )
+    cmd=''; opts=("$@")
   else
-    shift; opts=( "$@" )
+    shift; opts=("$@")
   fi
 
   local cont name=()
@@ -1950,6 +1979,12 @@ drun() {
   [ "$id" ] || name=(--name "$cont")
 
   eval "cmd=($cmd)" # separate command into executable & args
+  if [ "$cmd" ]; then
+    # use executable as entrypoint
+    # and the rest as command args
+    opts+=(--entrypoint "$cmd")
+    cmd=("${cmd[@]:1}")
+  fi
   docker run -it "${opts[@]}" "${name[@]}" "$img" "${cmd[@]}"
 }
 
@@ -1982,33 +2017,62 @@ EOT
 # docker run -it --rm bash/sh
 # dsh <image> [opts...]
 dsh() {
-  local host image=${1:-busybox}
-  host=${image##*/}; host=${host%:*}
+  local host image="${1:-busybox}"
+  host="${image##*/}"
+  host="${host%:*}"
+
   # must pass $cmd to drun() as a single argument!
   local cmd="sh -c '`__container_shell_init_script`'"
   drun "$image" "$cmd" --rm --hostname $host "${@:2}"
 }
+
 # kubectl run -it --rm bash/sh
-# ksh [image] [opts...]
-# image: uses Harbor if prefixed ./
+# ksh [image] [@host] [opts...]
+# image: use Harbor if prefixed ./
+#  host: use nodeSelector hostname
 # default image is ./al2023-devops
 ksh() {
-  local image pod script
+  local args=() opts=() image pod
 
-  image=${1:-./al2023-devops}
-  [[ "$image" == ./* ]] && \
+  image=${1:-.}   # use default DevOps image on Harbor
+  [[ "$image" =~ ^\.$|^@.+ ]] && image=./al2023-devops
+  [[ "$image" == ./*       ]] && \
     image="harbor.fourteeners.local/library/${image:2}"
+
+  [[ "$2" == @* ]] && shift
+  [[ "$1" == @* ]] && {
+    opts+=( # run pod on host
+      --overrides="$(cat <<EOT
+{
+  "apiVersion": "v1",
+  "spec": {
+    "nodeSelector": {
+      "kubernetes.io/hostname": "${1:1}"
+    }
+  }
+}
+EOT
+      )"
+    )
+    shift
+  }
 
   # decorate pod name with random chars
   # to avoid collision with similar pod
-  pod=$(n=10000; printf "%s-temp-admin-%04d" $USER $((RANDOM % n)))
-  script="$(__container_shell_init_script)"
-
-  kubectl -n default run $pod \
-    -l="app=temp-admin" -it --rm "${@:2}" \
-    --pod-running-timeout 5m --quiet \
-    --restart=Never --image "$image" \
-    --command -- sh -c "$script"
+  printf -v pod "%s-temp-admin-%04d" $USER $((RANDOM % 10000))
+  args=(
+    --namespace=default
+    --labels="app=temp-admin"
+    --pod-running-timeout=5m
+    --rm -it "${@:2}"
+    --restart=Never
+    --image=$image
+    "${opts[@]}"
+    --command
+    --quiet
+  )
+  kubectl run $pod "${args[@]}" -- \
+    sh -c "$(__container_shell_init_script)"
 }
 
 # dexec <container> [opts] [-- command]
@@ -2090,7 +2154,7 @@ knodes() {
 
 # list pods running on a K8s node
 # usage: kpods <node_internal_ip>
-#   tip: run "knodes" to list IPs
+#   tip: run `knodes` to list IPs
 kpods() {
   # ensure kubectl/jq installed
   _reqcmds kubectl jq || return
@@ -2123,6 +2187,24 @@ kpods() {
            "${words[0]}" "${words[1]}" \
            "${words[3]}" "${words[5]}"
   done <<< "$table"
+}
+
+# Helm "touch": apply manifest
+# generated for a Helm release
+# usage: htouch <helm-get-args>
+# provide args to `helm get manifest`
+# e.g. "-n app-namespace app-release"
+htouch() {
+  # ensure helm/kubectl installed
+  _reqcmds helm kubectl || return
+
+  local manifest namespace
+  manifest="$(helm get manifest "$@")" || return
+  namespace=$(helm get metadata "$@" | \
+    grep NAMESPACE | awk '{print $2}')
+  # suppress `kubectl apply` warnings about
+  # missing last-applied-config annotations
+  kubectl apply -f - <<< "$manifest" -n "$namespace" 2> /dev/null
 }
 
 # list tags of a repo on DockerHub
@@ -2158,7 +2240,7 @@ dlogin() {
       ;;
     ecr)
       # delegate to separate function
-      ecrlogin
+      ecrlogin "${@:2}"
       return
       ;;
     *)
@@ -2171,19 +2253,25 @@ dlogin() {
 }
 
 # push local image to Docker registry
-# dpush <image> [registry]
-# harbor|[docker]|ghcr|ecr
+# dpush <image> [registry] [pushopts]
+#  registry: harbor|[docker]|ghcr|ecr
+#  pushopts: docker push options (-q)
+# NOTE: must be logged in to registry
 # (completion is defined
 # in ~/.bash_completion)
-# must already be logged in to registry
 dpush() (
-  local tag
+  set -e
+
   help() {
     echo "Usage: dpush <image> [registry]"
     echo "       harbor|[docker]|ghcr|ecr"
     exit ${1:-0}
   }
-  [ "$1" ]  || help
+  [ "$1" ] || help
+  [ "$(docker image ls -q "$1")" ] || {
+    echo >&2 "Image not found: $1"
+    exit 1
+  }
   case "$2" in
     harbor)
       tag="harbor.fourteeners.local/library/$(basename "$1")"
@@ -2197,20 +2285,20 @@ dpush() (
     ecr)
       # delegate to separate script
       ecrpush "$1"
-      return
+      exit $?
       ;;
     *)
       help 1
   esac
-  docker image inspect "$1" > /dev/null || return
-  docker tag           "$1" "$tag"      || return
-  docker push "$tag"
-  docker rmi  "$tag"
+  docker tag  "$1" "$tag"
+  trap "docker rmi  $tag" EXIT
+  docker push "${@:3}" "$tag"
 )
 
 export AWS_PAGER="" # disable paging
 export AWS_CONFIG_FILE="$HOME/.aws/config"
 export AWS_SHARED_CREDENTIALS_FILE="$HOME/.aws/credentials"
+export AWS_CA_BUNDLE="$HOMEBREW_PREFIX/etc/ca-certificates/cert.pem"
 
 alias awscfg='aws configure list'
 
@@ -2598,18 +2686,24 @@ ecrdomain() {
   echo "$account.dkr.ecr.$region.amazonaws.com"
 }
 
-# docker login into ECR
+# docker login to either
+# account or public ECR
+# ecrlogin [public]
 ecrlogin() {
   # ensure docker available
   _reqcmds docker || return
 
-  local registry result
-  registry=$(ecrdomain) || return
-
-  result=$(aws ecr get-login-password | \
-    docker login "$registry" \
-      --username AWS \
-      --password-stdin) || return
+  local registry args result
+  if [ "$1" == public ]; then
+     registry="public.ecr.aws"
+     args=(ecr-public --profile personal --region us-east-1)
+  else
+     registry=$(ecrdomain) || return
+     args=(ecr)
+  fi
+  result=$(aws "${args[@]}" get-login-password | \
+    docker login --username AWS --password-stdin \
+    "$registry") || return
 
   [[ "$result" =~ Succeeded ]] || return
   echo "Successfully logged into $registry"
@@ -2878,6 +2972,8 @@ emptyb() (
 alias redis='iredis --iredisrc $XDG_CONFIG_HOME/iredis/iredisrc'
 export IREDIS_DSN="homelab"
 
+export OLLAMA_HOST="https://ollama.fourteeners.local"
+
 # brew install qalculate-qt
 qc() {
   (qalculate-qt "$@" &) 2> /dev/null
@@ -3017,7 +3113,7 @@ complete -o default -F __start_kubectl k
 
 # Amazon Q post block. Keep at the bottom of this file.
 [ -f "$HOME/Library/Application Support/amazon-q/shell/bash_profile.post.bash" ] && \
-   . "$HOME/Library/Application Support/amazon-q/shell/bash_profile.post.bash"
+   . "$HOME/Library/Application Support/amazon-q/shell/bash_profile.post.bash" &> /dev/null
 
 #================================#
 # End of .bash_profile for macOS #

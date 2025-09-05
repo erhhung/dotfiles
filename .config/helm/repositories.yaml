@@ -35,7 +35,7 @@ repositories:
     name: cockroachdb
     pass_credentials_all: false
     password: ""
-    url: https://charts.cockroachdb.com/
+    url: https://charts.cockroachdb.com
     username: ""
   - caFile: ""
     certFile: ""
@@ -54,6 +54,15 @@ repositories:
     pass_credentials_all: false
     password: ""
     url: https://packages.confluent.io/helm
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: cowboysysop
+    pass_credentials_all: false
+    password: ""
+    url: https://cowboysysop.github.io/charts
     username: ""
   - caFile: ""
     certFile: ""
@@ -104,6 +113,15 @@ repositories:
     certFile: ""
     insecure_skip_tls_verify: false
     keyFile: ""
+    name: gitlab
+    pass_credentials_all: false
+    password: ""
+    url: https://charts.gitlab.io
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
     name: grafana
     pass_credentials_all: false
     password: ""
@@ -117,6 +135,15 @@ repositories:
     pass_credentials_all: false
     password: ""
     url: https://helm.goharbor.io
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: intel
+    pass_credentials_all: false
+    password: ""
+    url: https://intel.github.io/helm-charts
     username: ""
   - caFile: ""
     certFile: ""
@@ -158,6 +185,15 @@ repositories:
     certFile: ""
     insecure_skip_tls_verify: false
     keyFile: ""
+    name: langfuse
+    pass_credentials_all: false
+    password: ""
+    url: https://langfuse.github.io/langfuse-k8s
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
     name: longhorn
     pass_credentials_all: false
     password: ""
@@ -167,10 +203,28 @@ repositories:
     certFile: ""
     insecure_skip_tls_verify: false
     keyFile: ""
+    name: meilisearch
+    pass_credentials_all: false
+    password: ""
+    url: https://meilisearch.github.io/meilisearch-kubernetes
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: meshery
+    pass_credentials_all: false
+    password: ""
+    url: https://meshery.io/charts
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
     name: metrics-server
     pass_credentials_all: false
     password: ""
-    url: https://kubernetes-sigs.github.io/metrics-server/
+    url: https://kubernetes-sigs.github.io/metrics-server
     username: ""
   - caFile: ""
     certFile: ""
@@ -188,7 +242,16 @@ repositories:
     name: nats
     pass_credentials_all: false
     password: ""
-    url: https://nats-io.github.io/k8s/helm/charts/
+    url: https://nats-io.github.io/k8s/helm/charts
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: nfd
+    pass_credentials_all: false
+    password: ""
+    url: https://kubernetes-sigs.github.io/node-feature-discovery/charts
     username: ""
   - caFile: ""
     certFile: ""
@@ -212,6 +275,15 @@ repositories:
     certFile: ""
     insecure_skip_tls_verify: false
     keyFile: ""
+    name: open-webui
+    pass_credentials_all: false
+    password: ""
+    url: https://helm.openwebui.com
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
     name: opensearch
     pass_credentials_all: false
     password: ""
@@ -230,10 +302,28 @@ repositories:
     certFile: ""
     insecure_skip_tls_verify: false
     keyFile: ""
+    name: otwld
+    pass_credentials_all: false
+    password: ""
+    url: https://helm.otwld.com
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
     name: prometheus
     pass_credentials_all: false
     password: ""
     url: https://prometheus-community.github.io/helm-charts
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: qdrant
+    pass_credentials_all: false
+    password: ""
+    url: https://qdrant.github.io/qdrant-helm
     username: ""
   - caFile: ""
     certFile: ""
@@ -257,10 +347,46 @@ repositories:
     certFile: ""
     insecure_skip_tls_verify: false
     keyFile: ""
+    name: smallstep
+    pass_credentials_all: false
+    password: ""
+    url: https://smallstep.github.io/helm-charts
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: traefik
+    pass_credentials_all: false
+    password: ""
+    url: https://traefik.github.io/charts
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
     name: vcluster
     pass_credentials_all: false
     password: ""
     url: https://charts.loft.sh
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: vmware-tanzu
+    pass_credentials_all: false
+    password: ""
+    url: https://vmware-tanzu.github.io/helm-charts
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: wave
+    pass_credentials_all: false
+    password: ""
+    url: https://wave-k8s.github.io/wave
     username: ""
   - caFile: ""
     certFile: ""

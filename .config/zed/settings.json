@@ -77,7 +77,7 @@
       "title": false
     }
   },
-  "assistant": {
+  "agent": {
     "version": "2",
     "default_model": {
       "provider": "copilot_chat",

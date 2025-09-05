@@ -79,7 +79,7 @@
  .config/tmux/!(plugins)
  .config/totp-cli/credentials
  .config/trippy/
- .config/zed/*.json
+ .config/zed/!(*_backup).json
 
 |.local/share/jan/.janrc
 |.local/share/jan/settings/@janhq/**/settings.json
@@ -104,5 +104,5 @@
 Library/Application Support/com.mitchellh.ghostty/config
 justfile
 
-/etc/hosts
-/usr/local/bin/{myip,blist,bsize,emptyb,ecrpush}
+|/etc/hosts
+ /usr/local/bin/{myip,blist,bsize,emptyb,ecrpush}
