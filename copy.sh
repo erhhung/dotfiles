@@ -192,13 +192,12 @@ require_age() {
     echo -e "and export ${LTCYAN}AGE_KEY_FILE${WHITE} variable.${NOCLR}"
     return 1
   }
-  if [[ ! -f "$AGE_KEY_FILE"   || \
-        "$(< "$AGE_KEY_FILE")" != AGE-SECRET-KEY-* ]]; then
+  [ -f "$AGE_KEY_FILE" ] && grep -q AGE-SECRET-KEY "$AGE_KEY_FILE" || {
     echo -e "\n${THUMBDN}${RED}Cannot encrypt requested files!${NOCLR}"
     echo -e "${WHITE}Please export ${LTCYAN}AGE_KEY_FILE${WHITE} variable"
     echo -e "to path of ${LTGREEN}age-keygen${WHITE} generated key.${NOCLR}"
     return 1
-  fi
+  }
 }
 
 # make sure the "age" utility is available and
