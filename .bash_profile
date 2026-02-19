@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 # -*- mode: shell-script -*-
 
 #===================================#
@@ -10,14 +8,20 @@
 # often have external dependencies! #
 #===================================#
 
-# Amazon Q pre block. Keep at the top of this file.
-[ -f "$HOME/Library/Application Support/amazon-q/shell/bash_profile.pre.bash" ] && \
-   . "$HOME/Library/Application Support/amazon-q/shell/bash_profile.pre.bash" &> /dev/null
+# Kiro CLI pre block. Keep at the top of this file.
+[ -f "$HOME/Library/Application Support/kiro-cli/shell/bash_profile.pre.bash" ] && \
+   . "$HOME/Library/Application Support/kiro-cli/shell/bash_profile.pre.bash" &> /dev/null
 
 # https://code.visualstudio.com/docs/terminal/shell-integration#_manual-installation
 # (ignore error from SecCodeCheckValidity issue: https://github.com/microsoft/vscode/issues/204085)
 [[ "$TERM_PROGRAM" == "vscode" ]] && \
    . "$(code --locate-shell-integration-path bash 2> /dev/null)" &> /dev/null
+
+# https://mise.jdx.dev/cli/activate.html#mise-activate
+. <(mise activate bash)
+# load .env in any dir:
+# https://mise.jdx.dev/environments/#env-file
+export MISE_ENV_FILE=".env"
 
 # suppress zsh message in Catalina
 BASH_SILENCE_DEPRECATION_WARNING=1
@@ -89,7 +93,7 @@ export _ZO_DOCTOR=0
 
 # https://github.com/jandedobbeleer/oh-my-posh
 # https://ohmyposh.dev/docs/installation/macos
-[ "$POSH_SESSION_ID" ] || {
+alias omp &> /dev/null || {
   # See available On-My-Posh themes:
   # https://ohmyposh.dev/docs/themes
   OMP_THEME="$XDG_CONFIG_HOME/oh-my-posh/erhhung.omp.yaml"
@@ -225,11 +229,19 @@ c() { printf '\e[2J\e[3J\e[H'; }
 # e(dit), l(ess), and r(eload) aliases
 alias ebp='z ~/.bash_profile'
 alias lbp='l ~/.bash_profile'
-alias rbp='. ~/.bash_profile; \
-           . ~/.bash_completion'
 alias egc='z ~/.config/git/config'
 alias esc='z ~/.ssh/config'
 alias eac='z ~/.aws/{config,credentials}'
+
+rbp() {
+  # work around VSCode bug where workspace
+  # terminal profile isn't used on restore:
+  # https://github.com/microsoft/vscode/issues/263504
+  [ -f .vscode/.bash_profile ] && \
+     . .vscode/.bash_profile   || \
+     .       ~/.bash_profile
+  . ~/.bash_completion
+}
 
 z() {
   local opts=()
@@ -308,6 +320,10 @@ n() {
     rm -f "$NNN_TMPFILE" > /dev/null
   }
 }
+
+# Joshuto is a terminal file manager
+# https://github.com/kamiyaa/joshuto
+alias f='joshuto'
 
 # Homebrew shortcuts
 alias b='brew '
@@ -457,6 +473,9 @@ alias csv='csvlens'
 # Frogmouth is a terminal Markdown viewer
 # https://github.com/Textualize/frogmouth
 alias fm='frogmouth'
+# mdfried is a terminal Markdown viewer
+# https://github.com/benjajaja/mdfried
+alias md='mdfried'
 
 alias m='most'
 alias o='open'
@@ -514,7 +533,6 @@ rsync() {
 }
 
 alias rc='rclone'
-alias f='fabric'
 
 # brew install gnu-time
 alias time='gtime -f "\n Total time: %E\n  User mode: %Us\nKernel mode: %Ss\nPercent CPU: %P" '
@@ -757,6 +775,14 @@ _reqfiles() {
     fi
   done
 }
+
+# prompt user to press any key
+# returns 0 on normal keypress
+# returns non-zero on Ctrl-C
+anykey() (
+  hidecursor; trap showcursor EXIT
+  read -rs -n 1 -p $'Press any key to continue.\r'
+)
 
 # prompt user to press a single key
 # prompt1 <message> <choices> [default]
@@ -1058,10 +1084,33 @@ totp() {
     { echo $pass; printf $pass | secure-pbcopy; }
 }
 
-alias wifioff='networksetup -setnetworkserviceenabled "Wi-Fi" off'
-alias  wifion='networksetup -setnetworkserviceenabled "Wi-Fi" on'
-alias  ethoff='networksetup -setnetworkserviceenabled "Display Ethernet" off'
-alias   ethon='networksetup -setnetworkserviceenabled "Display Ethernet" on'
+# <type> <on|off>
+# type: wifi|ethernet
+_setnetsvcenabled() {
+  local wifi_services=(
+    "Wi-Fi"
+  )
+  local ethernet_services=(
+    "Thunderbolt Ethernet"
+        "Display Ethernet"
+  )
+  local dev
+  local -n services="$1_services"
+  for dev in "${services[@]}"; do
+    networksetup -setnetworkserviceenabled "$dev" "$2"
+  done
+}
+alias wifioff='_setnetsvcenabled wifi off'
+alias  wifion='_setnetsvcenabled wifi on'
+alias  ethoff='_setnetsvcenabled ethernet off'
+alias   ethon='_setnetsvcenabled ethernet on'
+
+getcomputername() {
+  scutil --get ComputerName
+}
+setcomputername() {
+  _sudo scutil --set ComputerName "${1:-"Erhhung's i9 MBP"}"
+}
 
 # change location
 # chloc <location>
@@ -1178,6 +1227,9 @@ whois() {
     <<< "domain $domain"
 }
 
+# emulate the Linux getent command on Mac
+alias getent='dscacheutil -q host -a name'
+
 # functions like traceroute and ping
 # https://github.com/fujiapple852/trippy
 alias trip='trip -uc $XDG_CONFIG_HOME/trippy/config.toml'
@@ -1186,7 +1238,7 @@ alias trip='trip -uc $XDG_CONFIG_HOME/trippy/config.toml'
 # stdin, PEM file, website or K8s secret
 cert() {
   _reqcmds openssl || return
-  local stdin host port args
+  local stdin args
 
   if [ -p /dev/stdin ]; then
     stdin=$(cat)
@@ -1222,12 +1274,15 @@ EOT
       }
       stdin=$(kubectl get secret $secret "${args[@]}" \
         -o jsonpath='{ .data.tls\.crt }' | base64 -d)
+    elif [ -f "$1" ]; then
+      # certs from file
+      local file=$1
     else
-      host=${1:-localhost}
+      local host=${1:-localhost}
       [ "$host" == . ] && host=localhost
       # strip scheme & path if is an URL
       host=${host#*://}; host=${host%%/*}
-      port=${2:-443}
+      local port=${2:-443}
 
       # handle host:port syntax
       [[ "$host" == *:* ]] && {
@@ -1261,9 +1316,9 @@ EOT
     if [ "$stdin" ]; then
       # certs from stdin
       echo "$stdin"
-    elif [ -f "$host" ]; then
+    elif [ "$file" ]; then
       # certs from file
-      cat "$host"
+      cat "$file"
     else
       # certs from host
       args=(
@@ -1627,6 +1682,7 @@ addpaths    LIBRARY_PATH $HOMEBREW_PREFIX/lib
 addpaths PKG_CONFIG_PATH $HOMEBREW_PREFIX/lib/pkgconfig
 export    CPATH="$INCLUDE_PATH"
 export  CPPPATH="$INCLUDE_PATH"
+alias make='gmake'
 
 # Perl environment
 #export PERL5HOME="$HOME/.perl5"
@@ -1666,8 +1722,15 @@ venv() {
 alias python='python3'
 alias p3='python3'
 
-# https://requests.readthedocs.io/en/latest/user/advanced/#ssl-cert-verification
-export REQUESTS_CA_BUNDLE="$HOME/certs/fourteeners_ca_chain.pem"
+# macOS stores and uses CA certs in Keychain,
+# so add private CA certs to Keychain instead
+# export CA_BUNDLE="$HOME/certs/fourteeners_ca_chain.pem"
+# export SSL_CERT_FILE="$CA_BUNDLE"       # OpenSSL/Go/Git/cURL
+# export GIT_SSL_CAINFO="$CA_BUNDLE"      # Git
+# export CURL_CA_BUNDLE="$CA_BUNDLE"      # cURL
+# export PIP_CERT="$CA_BUNDLE"            # Python PIP
+# export REQUESTS_CA_BUNDLE="$CA_BUNDLE"  # Python requests
+# export NODE_EXTRA_CA_CERTS="$CA_BUNDLE" # Node.js
 
 # Node.js environment
 export NODE_OPTIONS="--experimental-repl-await"
@@ -1685,8 +1748,10 @@ export GOPATH="$HOME/.go"
 addpaths PATH $GOPATH/bin
 
 # Rust environment
+addpaths --pre PATH $HOMEBREW_PREFIX/opt/rustup/bin
 export CARGO_HOME="$XDG_CACHE_HOME/cargo"
 # . "$XDG_CONFIG_HOME/cargo/env"
+addpaths PATH $CARGO_HOME/bin
 
 # OpenMP: brew install llvm libomp
 addflags CPPFLAGS -I$HOMEBREW_PREFIX/opt/libomp/include
@@ -1713,9 +1778,10 @@ export FILTER_BRANCH_SQUELCH_WARNING=1
 export STEPPATH="$XDG_CONFIG_HOME/step"
 
 # keep ANSIBLE_CONFIG override on reload
-export ANSIBLE_CONFIG="${ANSIBLE_CONFIG:-$XDG_CONFIG_HOME/ansible/ansible.cfg}"
+# export ANSIBLE_CONFIG="${ANSIBLE_CONFIG:-$XDG_CONFIG_HOME/ansible/ansible.cfg}"
 # make ansible-playbook output YAML
 export ANSIBLE_STDOUT_CALLBACK=yaml
+export CONTROLLER_HOST="https://awx.fourteeners.local"
 
 # terraform CLI settings
 export TF_CLI_ARGS_init="-compact-warnings -upgrade"
@@ -1728,6 +1794,8 @@ export GPG_TTY=`tty`
 
 # AGE_SECRET_KEY is defined in .bash_private
 export AGE_KEY_FILE="$XDG_CONFIG_HOME/age/key.txt"
+export SOPS_CONFIG="$XDG_CONFIG_HOME/sops/config.yaml"
+export SOPS_AGE_KEY_FILE="$AGE_KEY_FILE"
 
 # export private environ vars like API keys
 [ -f ~/.bash_private ] && . ~/.bash_private
@@ -1840,8 +1908,8 @@ drmc() {
 }
 # remove old/unused docker images
 drmi() {
-  docker rmi $(docker images --filter "dangling=true" -q --no-trunc) 2> /dev/null
-  docker rmi $(docker images | grep "none" | awk '/ / { print $3 }') 2> /dev/null
+  docker rmi $(docker images --filter "dangling=true" -q --no-trunc)              2> /dev/null
+  docker rmi $(docker images --format table | grep none | awk '/ / { print $3 }') 2> /dev/null
 }
 
 # list local docker images ordered descending
@@ -1884,7 +1952,7 @@ dive() {
 }
 
 alias d='docker'
-alias di='d images'
+alias di='d images --format=table'
 alias dc='d compose'
 alias p='podman'
 alias pi='p images'
@@ -2061,7 +2129,7 @@ EOT
   # to avoid collision with similar pod
   printf -v pod "%s-temp-admin-%04d" $USER $((RANDOM % 10000))
   args=(
-    --namespace=default
+    # --namespace=default
     --labels="app=temp-admin"
     --pod-running-timeout=5m
     --rm -it "${@:2}"
@@ -2207,6 +2275,8 @@ htouch() {
   kubectl apply -f - <<< "$manifest" -n "$namespace" 2> /dev/null
 }
 
+export DOCKER_USERNAME="erhhung"
+
 # list tags of a repo on DockerHub
 # dhubtags <repo>
 dhubtags() {
@@ -2294,6 +2364,8 @@ dpush() (
   trap "docker rmi  $tag" EXIT
   docker push "${@:3}" "$tag"
 )
+
+alias hls='harbor repo list library'
 
 export AWS_PAGER="" # disable paging
 export AWS_CONFIG_FILE="$HOME/.aws/config"
@@ -2972,6 +3044,10 @@ emptyb() (
 alias redis='iredis --iredisrc $XDG_CONFIG_HOME/iredis/iredisrc'
 export IREDIS_DSN="homelab"
 
+export VAULT_ADDR="https://vault.fourteeners.local"
+export VAULT_CLI_NO_COLOR=0
+export VAULT_FORMAT="yaml"
+
 export OLLAMA_HOST="https://ollama.fourteeners.local"
 
 # brew install qalculate-qt
@@ -3018,6 +3094,24 @@ mxn() { _qalc_currency USD ${FUNCNAME^^} "$@"; }
 # convert TW$ to US$ or another currency
 # twd <amount> [currency_if_not_usd]
 twd() { _qalc_currency USD ${FUNCNAME^^} "$@"; }
+
+# launch MCPJam Inspector server
+# or [-k]kill the running server
+# mcpjam [-k]
+mcpjam() {
+  local pids=($(pgrep -f mcpjam))
+  if [ "$1" == -k ]; then
+    if [ "$pids" ]; then (
+      kill -TERM "${pids[@]}"
+      # restore echoing keystrokes
+      stty echo
+    )
+    fi
+  elif [ ! "$pids" ]; then (
+    npx -y @mcpjam/inspector@latest 2>&1 > /dev/null &
+  )
+  fi
+}
 
 #==================#
 # Bash Completions #
@@ -3111,9 +3205,9 @@ complete -o default -F __start_kubectl k
 # see ~/.bash_completion
 # for alias completions
 
-# Amazon Q post block. Keep at the bottom of this file.
-[ -f "$HOME/Library/Application Support/amazon-q/shell/bash_profile.post.bash" ] && \
-   . "$HOME/Library/Application Support/amazon-q/shell/bash_profile.post.bash" &> /dev/null
+# Kiro CLI post block. Keep at the bottom of this file.
+[ -f "$HOME/Library/Application Support/kiro-cli/shell/bash_profile.post.bash" ] && \
+   . "$HOME/Library/Application Support/kiro-cli/shell/bash_profile.post.bash" &> /dev/null
 
 #================================#
 # End of .bash_profile for macOS #

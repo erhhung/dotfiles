@@ -14,10 +14,37 @@ repositories:
     certFile: ""
     insecure_skip_tls_verify: false
     keyFile: ""
+    name: awx-operator
+    pass_credentials_all: false
+    password: ""
+    url: https://ansible-community.github.io/awx-operator-helm
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
     name: bitnami
     pass_credentials_all: false
     password: ""
     url: https://charts.bitnami.com/bitnami
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: bjw-s
+    pass_credentials_all: false
+    password: ""
+    url: https://bjw-s-labs.github.io/helm-charts
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: chr0n1x
+    pass_credentials_all: false
+    password: ""
+    url: https://chr0n1x.github.io/searxng-helm-chart
     username: ""
   - caFile: ""
     certFile: ""
@@ -104,6 +131,24 @@ repositories:
     certFile: ""
     insecure_skip_tls_verify: false
     keyFile: ""
+    name: eso
+    pass_credentials_all: false
+    password: ""
+    url: https://charts.external-secrets.io
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: external-dns
+    pass_credentials_all: false
+    password: ""
+    url: https://kubernetes-sigs.github.io/external-dns
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
     name: fluent
     pass_credentials_all: false
     password: ""
@@ -135,6 +180,15 @@ repositories:
     pass_credentials_all: false
     password: ""
     url: https://helm.goharbor.io
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: hashicorp
+    pass_credentials_all: false
+    password: ""
+    url: https://helm.releases.hashicorp.com
     username: ""
   - caFile: ""
     certFile: ""
@@ -203,6 +257,15 @@ repositories:
     certFile: ""
     insecure_skip_tls_verify: false
     keyFile: ""
+    name: mcpo-helm
+    pass_credentials_all: false
+    password: ""
+    url: https://first-it-consulting.github.io/helm-mcpo/
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
     name: meilisearch
     pass_credentials_all: false
     password: ""
@@ -230,10 +293,19 @@ repositories:
     certFile: ""
     insecure_skip_tls_verify: false
     keyFile: ""
-    name: minio-operator
+    name: minio
     pass_credentials_all: false
     password: ""
     url: https://operator.min.io
+    username: ""
+  - caFile: ""
+    certFile: ""
+    insecure_skip_tls_verify: false
+    keyFile: ""
+    name: mvisonneau
+    pass_credentials_all: false
+    password: ""
+    url: https://charts.visonneau.fr
     username: ""
   - caFile: ""
     certFile: ""

@@ -90,7 +90,7 @@ blocks:
     style: plain
   - leading_diamond: 
     trailing_diamond: 
-    template: 
+    template: ""
     foreground: "#fffb38"
     background: "#ef5350"
     type: root

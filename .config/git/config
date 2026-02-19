@@ -104,7 +104,7 @@ coif = "!f() { \
 }; f"
 cm = commit -m
 # commit & sign
-cms = commit -S -m
+cms = commit -s -S -m
 # add & commit new & existing files
 cma  = !git add -A && git cm
 cmas = !git add -A && git cms
@@ -114,7 +114,7 @@ wipe = !git cm WIPED -q && git reset HEAD~1 --hard
 wip = commit -am "WIP"
 # amend previous commit [w/ message]
 amend = "!f() { \
-  a() { git commit --amend \"$@\"; }; \
+  a() { git commit --amend -s -S \"$@\"; }; \
   [ -n \"$1\" ] && a -m \"$1\"; \
   [ -z \"$1\" ] && a -C HEAD; \
 }; f"
@@ -180,7 +180,7 @@ cmd = code --new-window --wait $MERGED
 #=====================================#
 
 [pager]
-diff = delta
+diff = diffnav
 log = delta
 reflog = delta
 show = delta

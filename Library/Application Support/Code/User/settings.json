@@ -1,0 +1,211 @@
+{
+  "[dockercompose]": {
+    "editor.autoIndent": "advanced",
+    "editor.defaultFormatter": "redhat.vscode-yaml",
+    "editor.insertSpaces": true,
+    "editor.quickSuggestions": {
+      "comments": false,
+      "other": true,
+      "strings": true
+    },
+    "editor.tabSize": 2
+  },
+  "[github-actions-workflow]": {
+    "editor.defaultFormatter": "redhat.vscode-yaml"
+  },
+  "[go]": {
+    "editor.defaultFormatter": "golang.go",
+    "editor.formatOnSave": true
+  },
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[opentofu][opentofu-vars]": {
+    "editor.defaultFormatter": "opentofu.vscode-opentofu",
+    "editor.formatOnSave": true,
+    "editor.formatOnSaveMode": "file"
+  },
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "amazonQ.shareContentWithAWS": false,
+  "amazonQ.telemetry": false,
+  "application.shellEnvironmentResolutionTimeout": 120,
+  "aws.codeWhisperer.shareCodeWhispererContentWithAWS": false,
+  "aws.ecs.openTerminalCommand": "/usr/local/bin/bash",
+  "aws.samcli.enableCodeLenses": true,
+  "aws.samcli.lambdaTimeout": 100000,
+  "aws.telemetry": false,
+  "bitoAI.appearance.fontSize (Match with IDE Font)": false,
+  "bitoAI.codeCompletion.enableAutoCompletion": true,
+  "bitoAI.codeCompletion.enableCommentToCode": true,
+  "breadcrumbs.symbolSortOrder": "name",
+  "chat.editor.fontSize": 18,
+  "debug.console.fontSize": 18,
+  "docker.extension.enableComposeLanguageServer": false,
+  "editor.accessibilitySupport": "off",
+  "editor.codeLensFontSize": 16,
+  "editor.cursorBlinking": "solid",
+  "editor.cursorStyle": "block",
+  "editor.fontFamily": "IntoneMono Nerd Font Propo, DroidSansM Nerd Font, Courier New, monospace",
+  "editor.fontLigatures": true,
+  "editor.fontSize": 18,
+  "editor.indentSize": "tabSize",
+  "editor.inlineSuggest.showToolbar": "onHover",
+  "editor.largeFileOptimizations": false,
+  "editor.minimap.enabled": false,
+  "editor.tabSize": 2,
+  "editor.unicodeHighlight.ambiguousCharacters": false,
+  "git.confirmSync": false,
+  "git.enableSmartCommit": true,
+  "github.copilot.nextEditSuggestions.enabled": true,
+  "gitlens.ai.model": "vscode",
+  "gitlens.ai.vscode.model": "copilot:gpt-4.1",
+  "gitlens.views.scm.grouped.views": {
+    "branches": true,
+    "commits": true,
+    "contributors": true,
+    "fileHistory": false,
+    "launchpad": false,
+    "remotes": true,
+    "repositories": true,
+    "searchAndCompare": false,
+    "stashes": true,
+    "tags": true,
+    "worktrees": true
+  },
+  "go.formatTool": "gofumpt",
+  "go.toolsManagement.autoUpdate": true,
+  "go.useLanguageServer": true,
+  "gopls": {
+    "formatting.gofumpt": true
+  },
+  "hediet.vscode-drawio.appearance": "automatic",
+  "hediet.vscode-drawio.resizeImages": null,
+  "javascript.referencesCodeLens.enabled": true,
+  "keyboard.touchbar.enabled": false,
+  "macros": {
+    "titleDashes": [
+      {
+        "args": {
+          // https://code.visualstudio.com/docs/editor/userdefinedsnippets#_variables
+          "snippet": "\n${TM_CURRENT_LINE/./-/g}\n"
+        },
+        "command": "editor.action.insertSnippet"
+      }
+    ]
+  },
+  "markdown.preview.fontSize": 16,
+  "opentofu.languageServer.tofu.path": "/usr/local/bin/tofu",
+  "scm.inputFontSize": 18,
+  "security.workspace.trust.untrustedFiles": "open",
+  "terminal.external.osxExec": "iTerm.app",
+  "terminal.integrated.commandsToSkipShell": [
+    "-workbench.action.terminal.sendSequence"
+  ],
+  "terminal.integrated.defaultProfile.osx": "bash",
+  "terminal.integrated.enableImages": true,
+  "terminal.integrated.env.osx": {
+    "CW_NEW_SESSION": "1",
+    "FIG_NEW_SESSION": "1",
+    "Q_NEW_SESSION": "1"
+  },
+  "terminal.integrated.fontFamily": "DroidSansM Nerd Font, Courier New, monospace",
+  "terminal.integrated.fontSize": 18,
+  "terminal.integrated.hideOnStartup": "always",
+  "terminal.integrated.macOptionIsMeta": true,
+  "terminal.integrated.profiles.osx": {
+    "bash": {
+      "args": ["-l"],
+      "icon": "terminal-bash",
+      "path": "/usr/local/bin/bash"
+    },
+    "fish": {
+      "args": ["-l"],
+      "icon": "terminal-bash",
+      "path": "/usr/local/bin/fish"
+    },
+    "zsh": {
+      "args": ["-l"],
+      "icon": "terminal-bash",
+      "path": "/bin/zsh"
+    }
+  },
+  "terminal.integrated.scrollback": 5000,
+  "terminal.integrated.shellIntegration.decorationsEnabled": "never",
+  "terminal.integrated.shellIntegration.enabled": false,
+  "terminal.integrated.stickyScroll.enabled": true,
+  "typescript.referencesCodeLens.enabled": true,
+  "vs-kubernetes": {
+    "vs-kubernetes.crd-code-completion": "disabled",
+    "vscode-kubernetes.helm-path-mac": "/Users/erhhung/.vs-kubernetes/tools/helm/darwin-amd64/helm",
+    "vscode-kubernetes.minikube-path-mac": "/Users/erhhung/.vs-kubernetes/tools/minikube/darwin-amd64/minikube"
+  },
+  "vscode-kubernetes.kubectl-path": "/usr/local/bin/kubectl",
+  "workbench.colorCustomizations": {
+    "editorCursor.foreground": "#ffff00",
+    "terminalCursor.foreground": "#ffff00"
+  },
+  "workbench.editor.enablePreviewFromCodeNavigation": true,
+  "workbench.editor.enablePreviewFromQuickOpen": true,
+  "workbench.startupEditor": "none",
+  "workbench.tree.enableStickyScroll": true,
+  "yaml.customTags": [
+    "!And",
+    "!And sequence",
+    "!If",
+    "!If sequence",
+    "!Not",
+    "!Not sequence",
+    "!Equals",
+    "!Equals sequence",
+    "!Or",
+    "!Or sequence",
+    "!FindInMap",
+    "!FindInMap sequence",
+    "!Base64",
+    "!Join",
+    "!Join sequence",
+    "!Cidr",
+    "!Ref",
+    "!Sub",
+    "!Sub sequence",
+    "!GetAtt",
+    "!GetAZs",
+    "!ImportValue",
+    "!ImportValue sequence",
+    "!Select",
+    "!Select sequence",
+    "!Split",
+    "!Split sequence"
+  ],
+  "yaml.schemas": {},
+  "chat.tools.urls.autoApprove": {
+    "http://archive.ubuntu.com": true,
+    "http://cdimage.ubuntu.com": true,
+    "http://deb.debian.org": true,
+    "https://releases.ubuntu.com": {
+      "approveRequest": true,
+      "approveResponse": false
+    }
+  },
+  "chat.tools.terminal.autoApprove": {
+    "tofu": true
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+}

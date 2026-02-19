@@ -1,3 +1,5 @@
+# Kiro CLI pre block. Keep at the top of this file.
+[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh"
 # Q pre block. Keep at the top of this file.
 [ -f "$HOME/Library/Application Support/amazon-q/shell/zshrc.pre.zsh" ] && \
    . "$HOME/Library/Application Support/amazon-q/shell/zshrc.pre.zsh"
@@ -16,3 +18,6 @@ autoload -U +X bashcompinit && bashcompinit
 # Q post block. Keep at the bottom of this file.
 [ -f "$HOME/Library/Application Support/amazon-q/shell/zshrc.post.zsh" ] && \
    . "$HOME/Library/Application Support/amazon-q/shell/zshrc.post.zsh"
+
+# Kiro CLI post block. Keep at the bottom of this file.
+[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh"

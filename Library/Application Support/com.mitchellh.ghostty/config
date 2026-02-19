@@ -56,6 +56,7 @@ cursor-style-blink = false
 clipboard-read = allow
 clipboard-write = allow
 copy-on-select = clipboard
+clipboard-paste-protection = false
 mouse-hide-while-typing = true
 
 # keyboard

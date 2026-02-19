@@ -36,7 +36,6 @@
  |.*_disabled
 
 |.config/age/key.txt
- .config/ansible/*.cfg
 |.config/argocd/config
  .config/btop/btop.conf
  .config/containers/containers.conf
@@ -50,6 +49,7 @@
  .config/git/config
 |.config/github-copilot/hosts.json
  .config/github-copilot/versions.json
+|.config/harbor-cli/config.yaml
 |.config/harlequin/config.toml
  .config/helm/repositories.yaml
  .config/helm/sortrepos.sh
@@ -57,6 +57,7 @@
  .config/htop/htoprc
 |.config/iredis/iredisrc
  .config/iterm2/*-profiles-*.json
+ .config/joshuto/
  .config/k9s/*.yaml
  .config/k9s/skins/*-erhhung.yaml
  .config/lazygit/config.yml
@@ -79,11 +80,13 @@
  .config/tmux/!(plugins)
  .config/totp-cli/credentials
  .config/trippy/
+ .config/whosthere/config.yaml
  .config/zed/!(*_backup).json
 
 |.local/share/jan/.janrc
 |.local/share/jan/settings/@janhq/**/settings.json
 
+ .ansible.cfg
  .chatgpt-cli/config.yaml
  .conda/
 |.confluent/config.json
@@ -101,6 +104,7 @@
  .ssh/keys.txt
  .vscode/extensions/extensions.*
 
+Library/Application Support/Code/User/settings.json
 Library/Application Support/com.mitchellh.ghostty/config
 justfile
 
